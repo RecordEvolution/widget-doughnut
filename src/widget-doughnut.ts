@@ -1,9 +1,14 @@
 import { html, css, LitElement, PropertyValueMap } from 'lit';
 import { repeat } from 'lit/directives/repeat.js'
-import { property, state } from 'lit/decorators.js';
+import { property, state, customElement } from 'lit/decorators.js';
 import { Chart } from 'chart.js/auto';
 import { InputData, Data, Dataseries } from './types.js'
+import {Context} from 'chartjs-plugin-datalabels'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
+Chart.register(ChartDataLabels)
+import tinycolor from "tinycolor2"
 
+@customElement('widget-doughnut')
 export class WidgetDoughnut extends LitElement {
   
   @property({type: Object}) 
@@ -13,178 +18,110 @@ export class WidgetDoughnut extends LitElement {
   private dataSets: Dataseries[] = []
 
   @state()
-  private canvasList: any = {}
-
-  @state()
-  private textActive: boolean = false
-
-
-  @state()
-  private numberLabels?: NodeListOf<Element>
-  @state()
-  private alignerLabels?: NodeListOf<Element>
-  @state()
-  private titleLabels?: NodeListOf<Element>
-  @state()
-  private spacers?: NodeListOf<Element>
-
-
-  resizeObserver: ResizeObserver
-  constructor() {
-    super()
-    this.resizeObserver = new ResizeObserver((ev: ResizeObserverEntry[]) => {
-
-      const width: number = ev[0].contentRect.width
-      const height: number = ev[0].contentRect.height
-      const spacerHeight = width * 0.08
-
-      this.numberLabels?.forEach(n => {
-        n.setAttribute("style", `font-size: ${width*0.06}px;width: ${width}px;`)
-      })
-
-      this.alignerLabels?.forEach(n => {
-        n.setAttribute("style", `top: ${height+ spacerHeight}px`)
-      })
-
-      this.titleLabels?.forEach(n => {
-          n.setAttribute("style", `font-size: ${width*0.06}px; top: ${spacerHeight*0.2}px;`)
-        })
-      
-      this.spacers?.forEach(n => {
-        n.setAttribute("style", `height: ${spacerHeight}px;`)
-      })
-    })
-  }
+  private canvasList: Map<string, {chart?: any, dataSets: Dataseries[]}> = new Map()
 
   update(changedProperties: Map<string, any>) {
-    changedProperties.forEach((oldValue, propName) => {
-      if (propName === 'inputData') {
-        this.applyInputData()
-      }
-    })
+    if (changedProperties.has('inputData')) {
+      this.transformInputData()
+      this.applyInputData()
+    }
     super.update(changedProperties)
   }
 
-  async applyInputData() {
+  protected firstUpdated(): void {
+    this.applyInputData()
+  }
 
-    if(!this?.inputData) return
-    this.dataSets = []
-    this.inputData.dataseries.forEach(ds => {
+
+  async transformInputData() {
+
+    if(!this?.inputData?.settings?.title || !this?.inputData?.dataseries.length) return
+
+    // reset all existing chart dataseries
+    this.canvasList.forEach(chartM => chartM.dataSets = [])
+    this.inputData.dataseries.sort((a, b) => a.order - b.order).forEach(ds => {
+      ds.chartName = ds.chartName ?? ''
 
       // pivot data
-      const distincts = [...new Set(ds.data.map((d: Data) => d.pivot))]
+      const distincts = [...new Set(ds.sections.flat().map((d: Data) => d.pivot))]
+      // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
+
       if (distincts.length > 1) {
-        distincts.forEach((piv) => {
+        distincts.forEach((piv, i) => {
           const pds: any = {
-            label: `${ds.label} ${piv}`,
+            label: ds.label + ' ' + piv,
             order: ds.order,
-            unit: ds.unit,
-            averageLatest: ds.averageLatest,
-            needleColor: ds.needleColor,
-            sections: ds.sections,
-            backgroundColors: ds.backgroundColors,
-            data: ds.data.filter(d => d.pivot === piv)
+            cutout: ds.cutout,
+            sections: ds.sections.map((d: Data[]) => d.filter(d => d.pivot === piv)).filter(d => d.length)
           }
-          this.dataSets.push(pds)
+          // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
+          const chartName = ds.chartName.endsWith('#pivot#') ? ds.chartName + piv : ds.chartName
+          if (!this.canvasList.has(chartName)) {
+            // initialize new charts
+            this.canvasList.set(chartName, {chart: undefined, dataSets: [] as Dataseries[]})
+          }
+          this.canvasList.get(chartName)?.dataSets.push(pds)
         })
       } else {
-        this.dataSets.push(ds)
+          if (!this.canvasList.has(ds.chartName)) {
+            // initialize new charts
+            this.canvasList.set(ds.chartName, {chart: undefined, dataSets: [] as Dataseries[]})
+          }
+          this.canvasList.get(ds.chartName)?.dataSets.push(ds)
       }
     })
-
+    // prevent duplicate transformation
+    this.inputData.dataseries = []
+    // console.log('new linechart datasets', this.canvasList)
+    
     // filter latest values and calculate average
-    this.dataSets.forEach(ds => {
-      ds.data = ds.data.splice(-ds.averageLatest ?? -1)
-      ds.needleValue = ds.data.map(d => d.value).reduce(( p, c ) => p + c, 0) / ds.data.length ?? ds.sections[0]
+    this.canvasList.forEach(({chart, dataSets}) => {
+      dataSets.forEach(ds => {
+        ds.data = []
+        ds.backgroundColor = ds.sections[0].map(d => d.color)
+        ds.sections = ds.sections.splice(-ds.averageLatest ?? -1)
+        const numSections = Math.max(...ds.sections.map(d => d.length))
+        for (let i = 0; i < numSections; i++) {
+          // array from i-th sections values
+          const valueCol = ds.sections.map((row: Data[]) => row?.[i]?.value).filter(v => v !== undefined)
+          ds.data.push(valueCol.reduce(( p, c ) => p + c, 0) / valueCol.length)
+        }
+        // console.log('ready data', ds.label, ds.backgroundColor, ds.sections)
 
-      ds.range = ds.sections[ds.sections.length -1] - ds.sections[0]
-      ds.ranges = ds.sections.map((v, i, a) => v - (a?.[i-1] ?? 0)).slice(1)
+        ds.datalabels = {
+          color: '#FFF',
+          formatter: (d: number) => d.toFixed()
+        }
+      })
     })
 
-    this.requestUpdate(); await this.updateComplete
+  }
 
-    // console.log('Doughnut Datasets', this.dataSets)
+  applyInputData() {
+    this.canvasList.forEach(({chart, dataSets}) => {
+      if (chart) {
+        chart.data.datasets = dataSets
 
-    // create charts
-    if (!Object.entries(this.canvasList).length) {
-      this.createChart()
-    }
+        chart?.update('none')
 
-    // update chart info
-    this.dataSets.forEach(ds => {
-      if (this.canvasList[ds.label]) {
-        this.canvasList[ds.label].data.datasets[0].data = ds.ranges
-        this.canvasList[ds.label].data.datasets[0].backgroundColor = ds.backgroundColors
-
-        this.canvasList[ds.label].update('none')
+      } else {
+        this.createChart()
       }
     })
   }
-
-  drawNeedle(chart: Chart) {
-      const ds: Dataseries | undefined = this.dataSets.find(ds => chart.data.datasets[0].label === ds.label)
-      if (!ds || isNaN(ds.needleValue)) return
-      let nv
-      nv = Math.max(ds.sections[0], ds.needleValue)
-      nv = Math.min(ds.sections[ds.sections.length-1], ds.needleValue)
-
-      const angle = Math.PI + (nv - ds.sections[0]) / ds.range * Math.PI
-      const {ctx} = chart;
-      const cw = chart.canvas.offsetWidth;
-      const ch = chart.canvas.offsetHeight;
-      // const cw = this.offsetWidth;
-      // const ch = this.offsetHeight;
-      const cx = cw / 2;
-      const cy = ch - 6;
-
-      ctx.translate(cx, cy);
-      ctx.rotate(angle);
-      ctx.beginPath();
-      ctx.moveTo(0, -3);
-      ctx.lineTo(ch - 20, 0);
-      ctx.lineTo(0, 3);
-      ctx.fillStyle = ds.needleColor;
-      ctx.fill();
-      ctx.rotate(-angle);
-      ctx.translate(-cx, -cy);
-      ctx.beginPath();
-      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-      ctx.fill();
-  }
-
-  // needleColor(ds: Dataseries) {
-  //   let idx: number | undefined = ds.sections.findIndex(s => s > ds.needleValue)
-  //   if (idx === -1) idx = ds.sections.length -1
-  //   // idx = Math.min(idx, ds.sections.length)
-  //   console.log(ds.label, idx -1, ds.backgroundColors[idx -1??0])
-  //   return ds.backgroundColors[idx -1 ?? ds.sections.length -1]
-  // }
 
   createChart() {
-    this.dataSets.forEach(ds => {
-      const canvas = this.shadowRoot?.querySelector(`[name="${ds.label}"]`) as HTMLCanvasElement;
-      this.resizeObserver.observe(canvas)
-
+    this.canvasList.forEach((chartM, chartName) => {
+      const canvas = this.shadowRoot?.querySelector(`[name="${chartName}"]`) as HTMLCanvasElement
       if (!canvas) return
-      this.canvasList[ds.label] = new Chart(
+      // console.log('chartM', canvas, chartM.chart)
+      chartM.chart = new Chart(
         canvas,
         {
           type: 'doughnut',
           data: {
-            datasets: [{
-              label: ds.label,
-              data: ds.ranges,
-              borderWidth: 0,
-              backgroundColor: ds.backgroundColors
-            },
-            // {
-            //   data: [1],
-            //   backgroundColor: ['white']
-            // },{
-            //   data: [1],
-            //   backgroundColor: [this.needleColor(ds)]
-            // }
-          ]
+            labels: chartM.dataSets[0].sections[0].map(d => d.label),
+            datasets: chartM.dataSets
           },
           options: {
             responsive: true,
@@ -194,34 +131,20 @@ export class WidgetDoughnut extends LitElement {
                 bottom: 3
               }
             },
-            rotation: -90,
-            cutout: '38%',
-            circumference: 180,
             animation: {
               duration: 200,
               animateRotate: false,
-              animateScale: true,
-              onComplete: ({initial}) => {
-                if (initial) this.textActive = true
-              }
+              animateScale: true
             },
             plugins: {
               tooltip: {
-                enabled: false
+                enabled: true
               }
             }
-          },
-          plugins: [{
-            id: 'doughnut',
-            afterDraw: this.drawNeedle.bind(this)
-          }]
+          }
         }
       ) as Chart
     })
-    this.numberLabels = this?.shadowRoot?.querySelectorAll('.values')
-    this.alignerLabels = this?.shadowRoot?.querySelectorAll('.aligner')
-    this.titleLabels = this?.shadowRoot?.querySelectorAll('.label')
-    this.spacers = this?.shadowRoot?.querySelectorAll('.spacer')
   }
 
   static styles = css`
@@ -335,27 +258,13 @@ export class WidgetDoughnut extends LitElement {
           <p class="paging" ?active=${this.inputData?.settings?.subTitle}>${this.inputData?.settings?.subTitle}</p>
         </header>
         <div class="doughnut-container ${this?.inputData?.settings?.columnLayout ? 'columnLayout': ''}">
-          ${repeat(this.dataSets, ds => ds.label, ds => html`
-              <div class="single-doughnut">
-                <div class="spacer"></div>
-                <div class="sizer">
-                  <canvas name="${ds.label}"></canvas>
-                </div>
-                <div class="label paging" ?active=${this.textActive}>${ds.label}</div>
-                <div class="spacer"></div>
-                <div class="aligner">
-                  <div class="values paging" ?active=${this.textActive}>
-                    <div class="scale-value">${ds.sections[0]}</div>
-                    <div id="currentValue">${ isNaN(ds.needleValue) ? '' : ds.needleValue.toFixed(0)} ${ds.unit}</div>
-                    <div class="scale-value">${ds.sections[ds.sections.length-1]}</div>
-                  </div>
-                </div>
-              </div>
+          ${repeat(this.canvasList, ([chartName, chartM]) => chartName, ([chartName]) => html`
+            <div class="sizer">
+              <canvas name="${chartName}"></canvas>
+            </div>
           `)}
         </div>
       </div>
     `;
   }
 }
-
-window.customElements.define('widget-doughnut', WidgetDoughnut);

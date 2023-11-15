@@ -5,48 +5,75 @@
     "columnLayout": false
   },
   "dataseries": [{
-    "label": "Demo Doughnut 1",
-    "order": 1,
-    "unit": "°C",
-    "needleColor": "black",
-    "sections": [-20, 20, 80, 98],
-    "backgroundColors": [
-      "#AAC8A7",
-      "#F1C27B",
-      "#FF9B9B"
-    ],
-    "averageLatest": 1,
-    "data": [{
-      "value": 90,
-      "pivot": "Frankfurt"
-    },{
-      "value": 40,
-      "pivot": "Berlin"
-    },{
-      "value": 70,
-      "pivot": "Berlin"
-    },{
-      "value": 200,
-      "pivot": "Frankfurt"
-    },{
-      "value": 50,
-      "pivot": "München"
-    }]
-  },{
-    "label": "Demo Doughnut 2",
+    "label": "Doughnut 1",
     "order": 2,
-    "unit": "Pa",
-    "needleColor": "black",
-    "sections": [50, 70, 80, 90, 200],
-    "backgroundColors": [
-      "#AAC8A7",
-      "#F1C27B",
-      "#FF9B9B",
-      "#FF919B"
-    ],
-    "averageLatest": 1,
-    "data": [{
-      "value": 80
+    "chartName": "test",
+    "cutout": "20%",
+    "sections": [
+      [{
+          "label": "Devices Online",
+          "pivot": "Frankfurt",
+          "value": 36,
+          "color": "#11aa11"
+        }, {
+          "label": "Devices Offline",
+          "pivot": "Frankfurt",
+          "value": 13,
+          "color": "tomato"
+        }, {
+          "label": "Devices Unknown",
+          "pivot": "Frankfurt",
+          "value": 4,
+          "color": "grey"
+      }],
+      [{
+        "label": "Devices Online",
+        "pivot": "Berlin",
+        "value": 16,
+        "color": "#11aa11"
+      }, {
+        "label": "Devices Offline",
+        "pivot": "Berlin",
+        "value": 26,
+        "color": "tomato"
+      }, {
+        "label": "Devices Unknown",
+        "pivot": "Berlin",
+        "value": 6,
+        "color": "grey"
     }]
+    ],
+    "averageLatest": 1
+  },
+  
+  {
+    "label": "Demo Doughnut 2",
+    "order": 1,
+    "chartName": "test2",
+    "cutout": "20%",
+    "averageLatest": 1,
+    "sections": [
+      [{
+          "label": "Apps Running",
+          "pivot": "Frankfurt",
+          "value": 36,
+          "color": "#2233dd"
+        }, {
+          "label": "Apps Stopped",
+          "pivot": "Frankfurt",
+          "value": 33,
+          "color": "grey"
+        }, {
+          "label": "Devices Downloading",
+          "pivot": "Frankfurt",
+          "value": 12,
+          "color": "darkgrey"
+        }, {
+          "label": "Devices Error",
+          "pivot": "Frankfurt",
+          "value": 4,
+          "color": "orange"
+      }]
+    ]
   }]
 }
