@@ -26,9 +26,8 @@
             "items": {
                 "type": "object",
                 "properties": {
-                    "needleColor": {
-                        "title": "Needle Color",
-                        "description": "Give the color as a browser standard form. Either with names like 'red', 'green', etc. or as #de432b34 where two hex digits represent Red Green Blue Opacity in this order.",
+                    "label": {
+                        "title": "Label",
                         "type": "string"
                     },
                     "order": {
@@ -36,55 +35,60 @@
                         "description": "Determines the draw order of the doughnuts.",
                         "type": "number"
                     },
-                    "unit": {
-                        "title": "Unit",
-                        "description": "The unit of the values. e.g. °C or km/h",
+                    "cutout": {
+                        "title": "Doghnut Hole Size",
+                        "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
                         "type": "string"
                     },
-                    "sections": {
-                        "title": "Sections",
-                        "description": "The amount of doughnut sections. Starting from the min value, ending with the max value.",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "backgroundColors": {
-                        "title": "Section background colors",
-                        "description": "Background color for each section. This Array is one shorter than the number of sections.",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                    "chartName": {
+                        "title": "Chart",
+                        "description": "If two dataseries have the same 'Chart' name, they will be drawn in the same chart. Otherwise they will get their own chart. If the name ends with #pivot# then a separat chart will be drawn for each pivoted dataseries.",
+                        "type": "string"
                     },
                     "averageLatest": {
                         "title": "Average Latest Values",
-                        "description": "Calculate the average over the given number of newest values. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification.",
+                        "description": "Calculate the average over the given number of newest rows. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification.",
                         "type": "number"
                     },
-                    "data": {
+                    "sections": {
                         "title": "Data",
-                        "description": "The data used to draw this data series.",
+                        "description": "The Table with columns to display as sections in a Doughnut.",
                         "type": "array",
-                        "buffersize": 1000,
+                        "buffersize": 100,
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "value": {
-                                    "title": "Value",
-                                    "type": "number"
+                            "title": "Sections of the Doughnut",
+                            "description": "One Doghnut ring will be drawn for the latest row in the chosen table. (If you chose averageLatest > 1, then the last 'averageLatest' rows will be aggregated to one row first.)",
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "label": {
+                                        "title": "Section Label",
+                                        "description": "Should be a chosen constant and usually not be assigned dynamically by a table column value.",
+                                        "type": "string"
+                                    },
+                                    "value": {
+                                        "title": "Value",
+                                        "type": "number"
+                                    },
+                                    "color": {
+                                        "title": "Section Color",
+                                        "description": "Should be a chosen constant and usually not be assigned dynamically by a table column value.",
+                                        "type": "string"
+                                    },
+                                    "pivot": {
+                                        "title": "Pivot Column",
+                                        "description": "You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as pivot column, then you will get a doughnut for each city.",
+                                        "type": "string"
+                                    }
                                 },
-                                "pivot": {
-                                    "title": "Pivot Column",
-                                    "description": "You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as pivot column, then you will get a doughnut for each city.",
-                                    "type": "string"
-                                }
-                            },
-                            "required": ["value"]
+                                "required": ["value"]
+                            }
                         }
                     }
                 },
-                "required": ["value"]
+                "required": ["sections"]
+            }
         }
     }
 }
