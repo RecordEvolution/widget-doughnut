@@ -120,7 +120,7 @@ export class WidgetDoughnut extends LitElement {
         {
           type: 'doughnut',
           data: {
-            labels: chartM.dataSets[0].sections[0].map(d => d.label),
+            labels: chartM.dataSets[0].sections[0]?.map(d => d.label),
             datasets: chartM.dataSets
           },
           options: {
