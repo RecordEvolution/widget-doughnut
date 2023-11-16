@@ -1,13 +1,12 @@
 {
   "settings": {
-    "title": "Doughnut-chart",
-    "subTitle": "This shows a doughnut for each dataseries",
     "columnLayout": false
   },
   "dataseries": [{
     "label": "Doughnut 1",
     "order": 2,
     "chartName": "test",
+    "averageLatest": 1,
     "cutout": "20%",
     "sections": [
       [{
@@ -42,8 +41,7 @@
         "value": 6,
         "color": "grey"
     }]
-    ],
-    "averageLatest": 1
+    ]
   },
   
   {

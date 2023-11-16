@@ -35,7 +35,7 @@ export class WidgetDoughnut extends LitElement {
 
   async transformInputData() {
 
-    if(!this?.inputData?.settings?.title || !this?.inputData?.dataseries.length) return
+    if(!this?.inputData?.dataseries.length) return
 
     // reset all existing chart dataseries
     this.canvasList.forEach(chartM => chartM.dataSets = [])
