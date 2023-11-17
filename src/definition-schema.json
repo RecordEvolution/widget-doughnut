@@ -26,6 +26,11 @@
             "items": {
                 "type": "object",
                 "properties": {
+                    "needleColor": {
+                        "title": "Needle Color",
+                        "description": "Give the color as a browser standard form. Either with names like 'red', 'green', etc. or as #de432b34 where two hex digits represent Red Green Blue Opacity in this order.",
+                        "type": "color"
+                    },
                     "label": {
                         "title": "Label",
                         "type": "string"
@@ -39,6 +44,22 @@
                         "title": "Doghnut Hole Size",
                         "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
                         "type": "string"
+                    },
+                    "sections": {
+                        "title": "Sections",
+                        "description": "The amount of doughnut sections. Starting from the min value, ending with the max value.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "backgroundColors": {
+                        "title": "Section background colors",
+                        "description": "Background color for each section. This Array is one shorter than the number of sections.",
+                        "type": "array",
+                        "items": {
+                            "type": "color"
+                        }
                     },
                     "chartName": {
                         "title": "Chart",
