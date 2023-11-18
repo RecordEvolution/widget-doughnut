@@ -45,14 +45,6 @@
                         "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
                         "type": "string"
                     },
-                    "sections": {
-                        "title": "Sections",
-                        "description": "The amount of doughnut sections. Starting from the min value, ending with the max value.",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "backgroundColors": {
                         "title": "Section background colors",
                         "description": "Background color for each section. This Array is one shorter than the number of sections.",
@@ -95,7 +87,7 @@
                                     "color": {
                                         "title": "Section Color",
                                         "description": "Should be a chosen constant and usually not be assigned dynamically by a table column value.",
-                                        "type": "string"
+                                        "type": "color"
                                     },
                                     "pivot": {
                                         "title": "Pivot Column",
