@@ -71,7 +71,7 @@ export class WidgetDoughnut extends LitElement {
       }
     })
     // prevent duplicate transformation
-    this.inputData.dataseries = []
+    // this.inputData.dataseries = []
     // console.log('new linechart datasets', this.canvasList)
     
     // filter latest values and calculate average
@@ -86,7 +86,7 @@ export class WidgetDoughnut extends LitElement {
           const valueCol = ds.sections.map((row: Data[]) => row?.[i]?.value).filter(v => v !== undefined)
           ds.data.push(valueCol.reduce(( p, c ) => p + c, 0) / valueCol.length)
         }
-        // console.log('ready data', ds.label, ds.backgroundColor, ds.sections)
+        // console.log('ready data', ds.label, ds.backgroundColor, ds.sections, ds.data)
 
         ds.datalabels = {
           color: '#FFF',
