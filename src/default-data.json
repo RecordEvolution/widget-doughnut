@@ -4,7 +4,6 @@
   },
   "dataseries": [{
     "label": "Doughnut 1",
-    "order": 2,
     "chartName": "test",
     "averageLatest": 1,
     "cutout": "20%",
@@ -46,7 +45,6 @@
   
   {
     "label": "Demo Doughnut 2",
-    "order": 1,
     "chartName": "test2",
     "cutout": "20%",
     "averageLatest": 1,
