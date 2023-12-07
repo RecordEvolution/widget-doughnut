@@ -81,7 +81,8 @@
                                     },
                                     "value": {
                                         "title": "Value",
-                                        "type": "number"
+                                        "type": "number",
+                                        "required": true
                                     },
                                     "color": {
                                         "title": "Section Color",
@@ -93,13 +94,11 @@
                                         "description": "You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as pivot column, then you will get a doughnut for each city.",
                                         "type": "string"
                                     }
-                                },
-                                "required": ["value"]
+                                }
                             }
                         }
                     }
-                },
-                "required": ["sections"]
+                }
             }
         }
     }
