@@ -3,7 +3,7 @@
     "description": "REWidget widget-doughnut",
     "license": "MIT",
     "author": "widget-doughnut",
-    "version": "1.4.5",
+    "version": "1.4.6",
     "type": "module",
     "main": "dist/src/index.js",
     "module": "dist/src/index.js",
