@@ -5,12 +5,12 @@
     "author": "widget-doughnut",
     "version": "1.4.6",
     "type": "module",
-    "main": "dist/src/index.js",
-    "module": "dist/src/index.js",
-    "exports": {
-        ".": "./dist/src/index.js",
-        "./widget-doughnut.js": "./dist/src/widget-doughnut.js"
-    },
+    "main": "dist/widget-doughnut.js",
+    "types": "dist/src/widget-doughnut.d.ts",
+    "files": [
+        "dist",
+        "src"
+    ],
     "scripts": {
         "analyze": "cem analyze --litelement",
         "start": "tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
