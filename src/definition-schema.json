@@ -37,36 +37,10 @@
                         "required": true,
                         "type": "string"
                     },
-                    "needleColor": {
-                        "title": "Needle Color",
-                        "order": 2,
-                        "type": "color"
-                    },
-                    "order": {
-                        "title": "Draw Order",
-                        "description": "Determines the draw order of the doughnuts.",
-                        "order": 3,
-                        "type": "number"
-                    },
                     "cutout": {
                         "title": "Doghnut Hole Size",
                         "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
                         "order": 4,
-                        "type": "string"
-                    },
-                    "backgroundColors": {
-                        "title": "Section background colors",
-                        "description": "Background color for each section. This Array is one shorter than the number of sections.",
-                        "order": 5,
-                        "type": "array",
-                        "items": {
-                            "type": "color"
-                        }
-                    },
-                    "chartName": {
-                        "title": "Chart",
-                        "description": "If two dataseries have the same 'Chart' name, they will be drawn in the same chart. Otherwise they will get their own chart. If the name ends with #pivot# then a separat chart will be drawn for each pivoted dataseries.",
-                        "order": 6,
                         "type": "string"
                     },
                     "averageLatest": {
@@ -75,12 +49,21 @@
                         "order": 7,
                         "type": "number"
                     },
+                    "backgroundColors": {
+                        "title": "Section background colors",
+                        "description": "Background color for each section. This Array is one shorter than the number of sections.",
+                        "order": 8,
+                        "type": "array",
+                        "items": {
+                            "type": "color"
+                        }
+                    },
                     "sections": {
                         "title": "Data",
                         "description": "The Table with columns to display as sections in a Doughnut.",
-                        "order": 8,
+                        "order": 9,
                         "type": "array",
-                        "buffersize": 100,
+                        "buffersize": 10,
                         "items": {
                             "title": "Sections of the Doughnut",
                             "description": "One Doghnut ring will be drawn for the latest row in the chosen table. (If you chose averageLatest > 1, then the last 'averageLatest' rows will be aggregated to one row first.)",
@@ -88,7 +71,7 @@
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "label": {
+                                    "name": {
                                         "title": "Section Label",
                                         "description": "Should be a chosen constant and usually not be assigned dynamically by a table column value.",
                                         "order": 1,

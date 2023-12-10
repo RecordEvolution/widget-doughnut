@@ -6,36 +6,36 @@
     "label": "Doughnut 1",
     "chartName": "test",
     "averageLatest": 1,
-    "cutout": "20%",
+    "cutout": "50%",
     "sections": [
       [{
-          "label": "Devices Online",
+          "name": "Devices Online",
           "pivot": "Frankfurt",
           "value": 36,
           "color": "#11aa11"
         }, {
-          "label": "Devices Offline",
+          "name": "Devices Offline",
           "pivot": "Frankfurt",
           "value": 13,
           "color": "tomato"
         }, {
-          "label": "Devices Unknown",
+          "name": "Devices Unknown",
           "pivot": "Frankfurt",
           "value": 4,
           "color": "grey"
       }],
       [{
-        "label": "Devices Online",
+        "name": "Devices Online",
         "pivot": "Berlin",
         "value": 16,
         "color": "#11aa11"
       }, {
-        "label": "Devices Offline",
+        "name": "Devices Offline",
         "pivot": "Berlin",
         "value": 26,
         "color": "tomato"
       }, {
-        "label": "Devices Unknown",
+        "name": "Devices Unknown",
         "pivot": "Berlin",
         "value": 6,
         "color": "grey"
@@ -50,22 +50,22 @@
     "averageLatest": 1,
     "sections": [
       [{
-          "label": "Apps Running",
+          "name": "Apps Running",
           "pivot": "Frankfurt",
           "value": 36,
           "color": "#2233dd"
         }, {
-          "label": "Apps Stopped",
+          "name": "Apps Stopped",
           "pivot": "Frankfurt",
           "value": 33,
           "color": "grey"
         }, {
-          "label": "Devices Downloading",
+          "name": "Devices Downloading",
           "pivot": "Frankfurt",
           "value": 12,
           "color": "darkgrey"
         }, {
-          "label": "Devices Error",
+          "name": "Devices Error",
           "pivot": "Frankfurt",
           "value": 4,
           "color": "orange"
