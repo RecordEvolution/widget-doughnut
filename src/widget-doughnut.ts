@@ -325,6 +325,7 @@ export class WidgetDoughnut extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: var(--re-text-color, #000) !important;
     }
     p {
       margin: 10px 0 0 0;
@@ -334,6 +335,7 @@ export class WidgetDoughnut extends LitElement {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: var(--re-text-color, #000) !important;
     }
 
     .chart {
