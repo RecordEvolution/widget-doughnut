@@ -179,7 +179,7 @@ export class WidgetDoughnut extends LitElement {
       ds.label = ds.label ?? ''
 
       // pivot data
-      const distincts = [...new Set(ds.sections.flat().map((d: Data) => d.pivot))]
+      const distincts = [...new Set(ds.sections?.flat().map((d: Data) => d.pivot))]
       // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
 
       if (distincts.length > 1) {
@@ -187,7 +187,7 @@ export class WidgetDoughnut extends LitElement {
           const pds: any = {
             label: ds.label + ' ' + piv,
             cutout: ds.cutout,
-            sections: ds.sections.map((d: Data[]) => d.filter(d => d.pivot === piv)).filter(d => d.length)
+            sections: ds.sections?.map((d: Data[]) => d.filter(d => d.pivot === piv)).filter(d => d.length)
           }
           // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
           if (!this.canvasList.has(pds.label)) {
@@ -210,11 +210,11 @@ export class WidgetDoughnut extends LitElement {
       dataSets.forEach(ds => {
         ds.data = []
         ds.backgroundColor = ds.sections?.[0]?.map(d => d.color) ?? []
-        ds.sections = ds.sections.splice(-ds.averageLatest ?? -1)
-        const numSections = Math.max(...ds.sections.map(d => d.length))
+        ds.sections = ds.sections?.splice(-ds.averageLatest ?? -1)
+        const numSections = Math.max(...ds.sections?.map(d => d.length))
         for (let i = 0; i < numSections; i++) {
           // array from i-th sections values
-          const valueCol = ds.sections.map((row: Data[]) => row?.[i]?.value).filter(v => v !== undefined)
+          const valueCol = ds.sections?.map((row: Data[]) => row?.[i]?.value).filter(v => v !== undefined)
           ds.data.push(valueCol.reduce((p, c) => p + c, 0) / valueCol.length)
         }
         // console.log('ready data', ds.label, ds.backgroundColor, ds.sections, ds.data)
@@ -244,7 +244,7 @@ export class WidgetDoughnut extends LitElement {
         // Title
         option.title.text = ds.label
         option.title.textStyle.fontSize = 12 * modifier
-        option.color = ds.sections[0].map((d: Data) => d.color)
+        option.color = ds.sections?.[0].map((d: Data) => d.color)
 
 
         series.radius[0] = String(parseFloat(ds.cutout) * 0.6) + '%'
@@ -252,7 +252,7 @@ export class WidgetDoughnut extends LitElement {
         series2.radius[0] = String(parseFloat(ds.cutout) * 0.6) + '%'
         series2.itemStyle.borderRadius = 5 * modifier
         // Sections
-        option.dataset[0].source = ds.sections[0]
+        option.dataset[0].source = ds.sections?.[0]
         // series.data[0].name = ds.unit
 
         // Labels
