@@ -210,6 +210,7 @@ export class WidgetDoughnut extends LitElement {
       dataSets.forEach(ds => {
         ds.data = []
         ds.backgroundColor = ds.sections?.[0]?.map(d => d.color) ?? []
+        if (typeof ds.averageLatest !== 'number' || !isNaN(ds.averageLatest)) ds.averageLatest = 1
         ds.sections = ds.sections?.splice(-ds.averageLatest ?? -1)
         const numSections = Math.max(...ds.sections?.map(d => d.length))
         for (let i = 0; i < numSections; i++) {
