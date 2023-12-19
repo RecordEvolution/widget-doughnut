@@ -12,33 +12,33 @@
           "name": "Devices Online",
           "pivot": "Frankfurt",
           "value": 36,
-          "color": "#11aa11"
+          "color": "#aac8a7"
         }, {
           "name": "Devices Offline",
           "pivot": "Frankfurt",
           "value": 13,
-          "color": "tomato"
+          "color": "#ff9b9b"
         }, {
           "name": "Devices Unknown",
           "pivot": "Frankfurt",
           "value": 4,
-          "color": "grey"
+          "color": "#96caf8"
       }],
       [{
         "name": "Devices Online",
         "pivot": "Berlin",
         "value": 16,
-        "color": "#11aa11"
+        "color": "#dd9e46"
       }, {
         "name": "Devices Offline",
         "pivot": "Berlin",
         "value": 26,
-        "color": "tomato"
+        "color": "#e15656"
       }, {
         "name": "Devices Unknown",
         "pivot": "Berlin",
         "value": 6,
-        "color": "grey"
+        "color": "#5898d0"
     }]
     ]
   },
@@ -53,22 +53,22 @@
           "name": "Apps Running",
           "pivot": "Frankfurt",
           "value": 36,
-          "color": "#2233dd"
+          "color": "#f1c27b"
         }, {
           "name": "Apps Stopped",
           "pivot": "Frankfurt",
           "value": 33,
-          "color": "grey"
+          "color": "#aac8a7"
         }, {
           "name": "Devices Downloading",
           "pivot": "Frankfurt",
           "value": 12,
-          "color": "darkgrey"
+          "color": "#ff9b9b"
         }, {
           "name": "Devices Error",
           "pivot": "Frankfurt",
           "value": 4,
-          "color": "orange"
+          "color": "#96caf8"
       }]
     ]
   }]
