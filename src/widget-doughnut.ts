@@ -179,7 +179,7 @@ export class WidgetDoughnut extends LitElement {
       ds.label = ds.label ?? ''
 
       // pivot data
-      const distincts = [...new Set(ds.sections?.flat().map((d: Data) => d.pivot))]
+      const distincts = [...new Set(ds.sections?.flat()?.map((d: Data) => d.pivot))]
       // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
 
       if (distincts.length > 1) {
@@ -245,7 +245,7 @@ export class WidgetDoughnut extends LitElement {
         // Title
         option.title.text = ds.label
         option.title.textStyle.fontSize = 12 * modifier
-        option.color = ds.sections?.[0].map((d: Data) => d.color)
+        option.color = ds.sections?.[0]?.map((d: Data) => d.color)
 
 
         series.radius[0] = String(parseFloat(ds.cutout) * 0.6) + '%'
