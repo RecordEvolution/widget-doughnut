@@ -21,6 +21,8 @@ export class WidgetDoughnut extends LitElement {
   origHeight: number = 0
   template: EChartsOption
   modifier: number = 1
+  version: string = 'versionplaceholder'
+
   constructor() {
     super()
     this.resizeObserver = new ResizeObserver(this.adjustSizes.bind(this))
@@ -363,4 +365,4 @@ export class WidgetDoughnut extends LitElement {
   }
 }
 
-window.customElements.define('widget-doughnut', WidgetDoughnut);
+window.customElements.define('widget-doughnut-versionplaceholder', WidgetDoughnut);
