@@ -1,49 +1,54 @@
 <!doctype html>
 <html lang="en-GB">
+    <head>
+        <meta charset="utf-8" />
+        <title>Doughnut</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+            }
 
-<head>
-  <meta charset="utf-8">
-  <title>Doughnut</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-    }
+            widget-doughnut,
+            #demo {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
 
-    widget-doughnut, #demo {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-</head>
+    <body>
+        <div id="demo"></div>
+        <script src="https://storage.googleapis.com/reswarm-images/ObjectRandomizer.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"
+            integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
 
-<body>
-  <div id="demo"></div>
-  <script src="https://storage.googleapis.com/reswarm-images/ObjectRandomizer.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js" integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script type="module">
+            import { html, render } from 'lit'
+            import '../dist/src/widget-doughnut.js'
+            import data from '../src/default-data.json' assert { type: 'json' }
 
-  <script type="module">
-    import { html, render } from 'lit';
-    import '../dist/src/widget-doughnut.js';
-    import data from '../src/default-data.json' assert { type: 'json' };
-    
-    const keyPathsToRandomize = ['dataseries.0.sections.0.0.value', 'settings.title'];
-    setInterval(() => {
-      const randomizedObj = randomizeObjectValues(data, keyPathsToRandomize);
+            const keyPathsToRandomize = ['dataseries.0.sections.0.0.value', 'settings.title']
+            setInterval(() => {
+                const randomizedObj = randomizeObjectValues(data, keyPathsToRandomize)
 
-      // console.log('random', randomizedObj.dataseries[0].data[0]);
-      render(
-        html`
-          <widget-doughnut-versionplaceholder .inputData=${randomizedObj}>
-            some light-dom
-          </widget-doughnut-versionplaceholder>
-        `,
-        document.querySelector('#demo')
-      );
-    }, 1000)
-  </script>
-</body>
-
+                // console.log('random', randomizedObj.dataseries[0].data[0]);
+                render(
+                    html`
+                        <widget-doughnut-versionplaceholder .inputData=${randomizedObj}>
+                            some light-dom
+                        </widget-doughnut-versionplaceholder>
+                    `,
+                    document.querySelector('#demo')
+                )
+            }, 1000)
+        </script>
+    </body>
 </html>

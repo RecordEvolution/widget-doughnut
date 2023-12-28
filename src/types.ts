@@ -1,8 +1,7 @@
-
 export interface Settings {
     title: string
     subTitle: string
-  }
+}
 
 export interface Data {
     name: string

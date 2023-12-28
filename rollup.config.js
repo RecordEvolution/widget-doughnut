@@ -1,8 +1,8 @@
-import replace from '@rollup/plugin-replace';
-import nodeResolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import typescript from "@rollup/plugin-typescript";
-import babel from "@rollup/plugin-babel";
+import replace from '@rollup/plugin-replace'
+import nodeResolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
+import typescript from '@rollup/plugin-typescript'
+import babel from '@rollup/plugin-babel'
 
 export default {
     // if you use createSpaConfig, you can use your index.html as entrypoint,
@@ -17,7 +17,7 @@ export default {
     },
     plugins: [
         replace({
-            versionplaceholder: require('./package.json').version,
+            versionplaceholder: require('./package.json').version
         }),
         typescript({ sourceMap: true }),
         nodeResolve(),
@@ -28,4 +28,4 @@ export default {
     // alternatively, you can use your JS as entrypoint for rollup and
     // optionally set a HTML template manually
     // input: './app.js',
-};
+}
