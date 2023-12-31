@@ -2,14 +2,16 @@ import { html, css, LitElement, PropertyValueMap } from 'lit'
 import { repeat } from 'lit/directives/repeat.js'
 import { property, state } from 'lit/decorators.js'
 // import * as echarts from "echarts";
-import { InputData, Data, Dataseries } from './types.js'
 import type { EChartsOption, PieSeriesOption } from 'echarts'
+import { DoughnutChartConfiguration } from './definition-schema.js'
 
 // echarts.use([GaugeChart, CanvasRenderer]);
+type Dataseries = Exclude<DoughnutChartConfiguration['dataseries'], undefined>[number]
+type Section = Exclude<Dataseries['sections'], undefined>[number]
 
 export class WidgetDoughnut extends LitElement {
     @property({ type: Object })
-    inputData?: InputData = undefined
+    inputData?: DoughnutChartConfiguration
 
     @state()
     private canvasList: Map<string, { chart?: any; dataSets: Dataseries[] }> = new Map()
@@ -93,13 +95,11 @@ export class WidgetDoughnut extends LitElement {
     }
 
     update(changedProperties: Map<string, any>) {
-        changedProperties.forEach((oldValue, propName) => {
-            if (propName === 'inputData') {
-                this.transformData()
-                this.adjustSizes()
-                this.applyData()
-            }
-        })
+        if (changedProperties.has('inputData')) {
+            this.transformData()
+            this.adjustSizes()
+            this.applyData()
+        }
 
         super.update(changedProperties)
     }
@@ -127,7 +127,6 @@ export class WidgetDoughnut extends LitElement {
     }
 
     adjustSizes() {
-        // console.log('adjustSizes')
         // if (!this.origHeight) return
         const container = this.shadowRoot?.querySelector('.doughnut-container') as HTMLDivElement
         if (!container) return
@@ -175,14 +174,14 @@ export class WidgetDoughnut extends LitElement {
     }
 
     async transformData() {
-        if (!this?.inputData?.dataseries.length) return
+        if (!this?.inputData?.dataseries?.length) return
         // reset all existing chart dataseries
         this.canvasList.forEach((chartM: any) => (chartM.dataSets = []))
         this.inputData.dataseries.forEach((ds) => {
             ds.label = ds.label ?? ''
 
             // pivot data
-            const distincts = [...new Set(ds.sections?.flat()?.map((d: Data) => d.pivot))]
+            const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot))]
             // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
 
             if (distincts.length > 1) {
@@ -191,7 +190,7 @@ export class WidgetDoughnut extends LitElement {
                         label: ds.label + ' ' + piv,
                         cutout: ds.cutout,
                         sections: ds.sections
-                            ?.map((d: Data[]) => d.filter((d) => d.pivot === piv))
+                            ?.map((d) => d.filter((d) => d.pivot === piv))
                             .filter((d) => d.length)
                     }
                     // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
@@ -213,18 +212,19 @@ export class WidgetDoughnut extends LitElement {
         // filter latest values and calculate average
         this.canvasList.forEach(({ chart, dataSets }) => {
             dataSets.forEach((ds) => {
-                ds.data = []
+                const data: any[] = []
                 ds.backgroundColor = ds.sections?.[0]?.map((d) => d.color) ?? []
                 if (typeof ds.averageLatest !== 'number' || !isNaN(ds.averageLatest)) ds.averageLatest = 1
                 ds.sections = ds.sections?.splice(-ds.averageLatest ?? -1)
-                const numSections = Math.max(...ds.sections?.map((d) => d.length))
+                const values = ds.sections?.map((d) => d.length) ?? []
+                const numSections = Math.max(...values)
                 for (let i = 0; i < numSections; i++) {
                     // array from i-th sections values
-                    const valueCol = ds.sections
-                        ?.map((row: Data[]) => row?.[i]?.value)
-                        .filter((v) => v !== undefined)
-                    ds.data.push(valueCol.reduce((p, c) => p + c, 0) / valueCol.length)
+                    const valueCol =
+                        ds.sections?.map((row) => row?.[i]?.value).filter((v) => v !== undefined) ?? []
+                    data.push(valueCol.reduce((p, c) => p + c, 0) / valueCol.length)
                 }
+                ds.data = data
                 // console.log('ready data', ds.label, ds.backgroundColor, ds.sections, ds.data)
 
                 ds.datalabels = {
@@ -241,7 +241,7 @@ export class WidgetDoughnut extends LitElement {
     applyData() {
         const modifier = this.modifier
         this.setupCharts()
-        this.canvasList.forEach((chartM: any) => {
+        this.canvasList.forEach((chartM) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
                 const option = JSON.parse(JSON.stringify(this.template))
@@ -251,11 +251,11 @@ export class WidgetDoughnut extends LitElement {
                 // Title
                 option.title.text = ds.label
                 option.title.textStyle.fontSize = 12 * modifier
-                option.color = ds.sections?.[0]?.map((d: Data) => d.color)
+                option.color = ds.sections?.[0]?.map((d) => d.color)
 
-                series.radius[0] = String(parseFloat(ds.cutout) * 0.6) + '%'
+                series.radius[0] = String(parseFloat(ds.cutout ?? '50%') * 0.6) + '%'
                 series.itemStyle.borderRadius = 5 * modifier
-                series2.radius[0] = String(parseFloat(ds.cutout) * 0.6) + '%'
+                series2.radius[0] = String(parseFloat(ds.cutout ?? '50%') * 0.6) + '%'
                 series2.itemStyle.borderRadius = 5 * modifier
                 // Sections
                 option.dataset[0].source = ds.sections?.[0] ?? []

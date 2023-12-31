@@ -30,6 +30,7 @@
             "order": 2,
             "items": {
                 "type": "object",
+                "required": ["label"],
                 "properties": {
                     "label": {
                         "title": "Label",
@@ -55,7 +56,8 @@
                         "order": 8,
                         "type": "array",
                         "items": {
-                            "type": "color"
+                            "type": "color",
+                            "color": true
                         }
                     },
                     "sections": {
@@ -70,6 +72,7 @@
                             "type": "array",
                             "items": {
                                 "type": "object",
+                                "required": ["value"],
                                 "properties": {
                                     "name": {
                                         "title": "Section Label",
@@ -87,7 +90,8 @@
                                         "title": "Section Color",
                                         "description": "Should be a chosen constant and usually not be assigned dynamically by a table column value.",
                                         "order": 3,
-                                        "type": "color"
+                                        "type": "color",
+                                        "color": true
                                     },
                                     "pivot": {
                                         "title": "Pivot Column",
