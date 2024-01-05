@@ -30,7 +30,6 @@
             "order": 2,
             "items": {
                 "type": "object",
-                "required": ["label"],
                 "properties": {
                     "label": {
                         "title": "Label",
@@ -72,7 +71,6 @@
                             "type": "array",
                             "items": {
                                 "type": "object",
-                                "required": ["value"],
                                 "properties": {
                                     "name": {
                                         "title": "Section Label",
