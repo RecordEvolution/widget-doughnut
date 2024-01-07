@@ -121,8 +121,6 @@ export class WidgetDoughnut extends LitElement {
         this.origHeight =
             this.boxes?.map((b) => b.getBoundingClientRect().height).reduce((p, c) => (c > p ? c : p), 0) ?? 0
 
-        if (this.origWidth > 0) this.origWidth += 16
-        if (this.origHeight > 0) this.origHeight += 16
         // console.log('OrigWidth', this.origWidth, this.origHeight)
     }
 
@@ -144,7 +142,7 @@ export class WidgetDoughnut extends LitElement {
             const uhgap = userHeight - 12 * (r - 1)
             const m = uwgap / width / c
             const size = m * m * width * height * count
-            if (r * m * height < uhgap) fits.push({ c, m, size, width, height, userWidth, userHeight })
+            if (r * m * height <= uhgap) fits.push({ c, m, size, width, height, userWidth, userHeight })
         }
 
         for (let r = 1; r <= count; r++) {
@@ -153,7 +151,7 @@ export class WidgetDoughnut extends LitElement {
             const uhgap = userHeight - 12 * (r - 1)
             const m = uhgap / height / r
             const size = m * m * width * height * count
-            if (c * m * width < uwgap) fits.push({ r, m, size, width, height, userWidth, userHeight })
+            if (c * m * width <= uwgap) fits.push({ r, m, size, width, height, userWidth, userHeight })
         }
 
         const maxSize = fits.reduce((p, c) => (c.size < p ? p : c.size), 0)
