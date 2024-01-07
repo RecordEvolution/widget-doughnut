@@ -241,6 +241,7 @@ export class WidgetDoughnut extends LitElement {
     applyData() {
         const modifier = this.modifier
         this.setupCharts()
+        this.requestUpdate()
         this.canvasList.forEach((chartM) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
@@ -362,7 +363,7 @@ export class WidgetDoughnut extends LitElement {
                 </header>
                 <div class="doughnut-container">
                     ${repeat(
-                        this.canvasList,
+                        [...this.canvasList.entries()].sort(),
                         ([chartName, chartM]) => chartName,
                         ([chartName]) => html`
                             <div
