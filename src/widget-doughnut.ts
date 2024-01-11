@@ -179,32 +179,25 @@ export class WidgetDoughnut extends LitElement {
             ds.label = ds.label ?? ''
 
             // pivot data
-            const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot))]
+            const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot))].sort()
             // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
 
-            if (distincts.length > 1) {
-                distincts.forEach((piv, i) => {
-                    const pds: any = {
-                        label: `${piv ?? ''} - ${ds.label ?? ''}`,
-                        cutout: ds.cutout,
-                        sections: ds.sections
-                            ?.map((d) => d.filter((d) => d.pivot === piv))
-                            .filter((d) => d.length)
-                    }
-                    // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
-                    if (!this.canvasList.has(pds.label)) {
-                        // initialize new charts
-                        this.canvasList.set(pds.label, { chart: undefined, dataSets: [] as Dataseries[] })
-                    }
-                    this.canvasList.get(pds.label)?.dataSets.push(pds)
-                })
-            } else {
-                if (!this.canvasList.has(ds.label)) {
-                    // initialize new charts
-                    this.canvasList.set(ds.label, { chart: undefined, dataSets: [] as Dataseries[] })
+            distincts.forEach((piv, i) => {
+                const prefix = piv ? `${piv} - ` : ''
+                const pds: any = {
+                    label: prefix + ds.label ?? '',
+                    cutout: ds.cutout,
+                    sections: ds.sections
+                        ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv)))
+                        .filter((d) => d.length)
                 }
-                this.canvasList.get(ds.label)?.dataSets.push(ds)
-            }
+                // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
+                if (!this.canvasList.has(pds.label)) {
+                    // initialize new charts
+                    this.canvasList.set(pds.label, { chart: undefined, dataSets: [] as Dataseries[] })
+                }
+                this.canvasList.get(pds.label)?.dataSets.push(pds)
+            })
         })
 
         // filter latest values and calculate average
