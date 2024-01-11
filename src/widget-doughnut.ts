@@ -185,7 +185,7 @@ export class WidgetDoughnut extends LitElement {
             if (distincts.length > 1) {
                 distincts.forEach((piv, i) => {
                     const pds: any = {
-                        label: `${piv} - ${ds.label ?? ''}`,
+                        label: `${piv ?? ''} - ${ds.label ?? ''}`,
                         cutout: ds.cutout,
                         sections: ds.sections
                             ?.map((d) => d.filter((d) => d.pivot === piv))
