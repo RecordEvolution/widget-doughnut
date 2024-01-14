@@ -20,7 +20,7 @@ export class WidgetDoughnut extends LitElement {
     boxes?: HTMLDivElement[]
     origWidth: number = 0
     origHeight: number = 0
-    template: EChartsOption
+    template: any
     modifier: number = 1
     version: string = 'versionplaceholder'
 
@@ -159,6 +159,7 @@ export class WidgetDoughnut extends LitElement {
         const modifier = fit?.m ?? 0
 
         // console.log('FITS count', count, userWidth, userHeight, 'modifier', modifier, 'cols',fit?.c, 'rows', fit?.r, 'new size', fit?.size.toFixed(0), 'total space', (userWidth* userHeight).toFixed(0))
+        this.boxes = Array.from(this?.shadowRoot?.querySelectorAll('.chart') as NodeListOf<HTMLDivElement>)
 
         this.boxes?.forEach((box) =>
             box.setAttribute('style', `width:${modifier * width}px; height:${modifier * height}px`)
@@ -181,14 +182,14 @@ export class WidgetDoughnut extends LitElement {
             // pivot data
             const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot))].sort()
             // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
-
             distincts.forEach((piv, i) => {
                 const prefix = piv ? `${piv} - ` : ''
                 const pds: any = {
                     label: prefix + ds.label ?? '',
                     cutout: ds.cutout,
                     sections: ds.sections
-                        ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv)))
+                        ?.map((s) => s.map((c) => ({ ...c, pivot: c.pivot ?? '' })))
+                        ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv ?? '')))
                         .filter((d) => d.length)
                 }
                 // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
@@ -206,13 +207,13 @@ export class WidgetDoughnut extends LitElement {
                 const data: any[] = []
                 ds.backgroundColor = ds.sections?.[0]?.map((d) => d.color) ?? []
                 if (typeof ds.averageLatest !== 'number' || !isNaN(ds.averageLatest)) ds.averageLatest = 1
-                ds.sections = ds.sections?.splice(-ds.averageLatest ?? -1)
-                const values = ds.sections?.map((d) => d.length) ?? []
+                const sections = ds?.sections?.slice(0, ds.averageLatest ?? 1) ?? []
+                const values = sections?.map((d) => d.length) ?? []
                 const numSections = Math.max(...values)
                 for (let i = 0; i < numSections; i++) {
                     // array from i-th sections values
                     const valueCol =
-                        ds.sections?.map((row) => row?.[i]?.value).filter((v) => v !== undefined) ?? []
+                        sections?.map((row) => row?.[i]?.value).filter((v) => v !== undefined) ?? []
                     data.push(valueCol.reduce((p, c) => p + c, 0) / valueCol.length)
                 }
                 ds.data = data
@@ -236,13 +237,13 @@ export class WidgetDoughnut extends LitElement {
         this.canvasList.forEach((chartM) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
-                const option = JSON.parse(JSON.stringify(this.template))
+                const option = structuredClone(this.template)
                 const series = option.series[0],
                     series2 = option.series[1]
 
                 // Title
                 option.title.text = ds.label
-                option.title.textStyle.fontSize = 12 * modifier
+                option.title.textStyle.fontSize = 18 * modifier
                 option.color = ds.sections?.[0]?.map((d) => d.color)
 
                 series.radius[0] = String(parseFloat(ds.cutout ?? '50%') * 0.6) + '%'
@@ -254,8 +255,8 @@ export class WidgetDoughnut extends LitElement {
                 // series.data[0].name = ds.unit
 
                 // Labels
-                series.label.fontSize = 10 * modifier
-                series2.label.fontSize = 12 * modifier
+                series.label.fontSize = 12 * modifier
+                series2.label.fontSize = 14 * modifier
                 // @ts-ignore
                 // const colorSections = ds.backgroundColors?.map((b: string, i) => [(ds.sections?.[i + 1] - ga.min) / ds.range, b]).filter(([s]) => !isNaN(s))
 
@@ -274,7 +275,7 @@ export class WidgetDoughnut extends LitElement {
             if (!canvas) return
             // @ts-ignore
             chartM.chart = echarts.init(canvas)
-            chartM.chart.setOption(JSON.parse(JSON.stringify(this.template)))
+            chartM.chart.setOption(structuredClone(this.template))
         })
     }
 
