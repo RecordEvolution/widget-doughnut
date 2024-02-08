@@ -16,7 +16,7 @@ export class WidgetDoughnut extends LitElement {
     @state()
     private canvasList: Map<string, { chart?: any; dataSets: Dataseries[] }> = new Map()
 
-    resizeObserver: ResizeObserver
+    private resizeObserver: ResizeObserver
     boxes?: HTMLDivElement[]
     origWidth: number = 0
     origHeight: number = 0
@@ -91,6 +91,13 @@ export class WidgetDoughnut extends LitElement {
                     percentPrecision: 0
                 } as PieSeriesOption
             ]
+        }
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback()
+        if(this.resizeObserver) {
+            this.resizeObserver.disconnect()
         }
     }
 
