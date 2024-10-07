@@ -42,7 +42,7 @@ export type SectionsOfTheDoughnut = {
 export type Data = SectionsOfTheDoughnut[];
 export type Doughnuts = {
   label?: Label;
-  styling?: Settings;
+  settings?: Settings;
   sections?: Data;
   [k: string]: unknown;
 }[];

@@ -213,7 +213,7 @@ export class WidgetDoughnut extends LitElement {
                 const data: any[] = []
                 ds.backgroundColor = ds.sections?.[0]?.map((d) => d.color) ?? []
                 if (typeof ds.averageLatest !== 'number' || !isNaN(ds.averageLatest)) ds.averageLatest = 1
-                const sections = ds?.sections?.slice(0, ds.styling?.averageLatest ?? 1) ?? []
+                const sections = ds?.sections?.slice(0, ds.settings?.averageLatest ?? 1) ?? []
                 const values = sections?.map((d) => d.length) ?? []
                 const numSections = Math.max(...values)
                 for (let i = 0; i < numSections; i++) {
@@ -252,9 +252,9 @@ export class WidgetDoughnut extends LitElement {
                 option.title.textStyle.fontSize = 18 * modifier
                 option.color = ds.sections?.[0]?.map((d) => d.color)
 
-                series.radius[0] = String(parseFloat(ds.styling?.cutout ?? '50%') * 0.6) + '%'
+                series.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
                 series.itemStyle.borderRadius = 5 * modifier
-                series2.radius[0] = String(parseFloat(ds.styling?.cutout ?? '50%') * 0.6) + '%'
+                series2.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
                 series2.itemStyle.borderRadius = 5 * modifier
                 // Sections
                 option.dataset[0].source = ds.sections?.[0] ?? []
