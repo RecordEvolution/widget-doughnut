@@ -18,30 +18,22 @@ export type DoghnutHoleSize = string;
  */
 export type AverageLatestValues = number;
 /**
- * Background color for each section. This Array is one shorter than the number of sections.
- */
-export type SectionBackgroundColors = string[];
-/**
  * Should be a chosen constant and usually not be assigned dynamically by a table column value.
  */
 export type SectionLabel = string;
 export type Value = number;
 /**
- * Should be a chosen constant and usually not be assigned dynamically by a table column value.
+ * You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as split column, then you will get a doughnut for each city.
  */
-export type SectionColor = string;
+export type SplitDataBy = string;
 /**
- * You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as pivot column, then you will get a doughnut for each city.
- */
-export type PivotColumn = string;
-/**
- * One Doghnut ring will be drawn for the latest row in the chosen table. (If you chose averageLatest > 1, then the last 'averageLatest' rows will be aggregated to one row first.)
+ * One Doghnut ring will be drawn for the latest row in the chosen table.
  */
 export type SectionsOfTheDoughnut = {
   name?: SectionLabel;
-  value: Value;
+  value?: Value;
   color?: SectionColor;
-  pivot?: PivotColumn;
+  pivot?: SplitDataBy;
   [k: string]: unknown;
 }[];
 /**
@@ -49,22 +41,27 @@ export type SectionsOfTheDoughnut = {
  */
 export type Data = SectionsOfTheDoughnut[];
 export type Doughnuts = {
-  label: Label;
-  cutout?: DoghnutHoleSize;
-  averageLatest?: AverageLatestValues;
-  backgroundColors?: SectionBackgroundColors;
+  label?: Label;
+  styling?: Settings;
   sections?: Data;
   [k: string]: unknown;
 }[];
 
-export interface DoughnutChartConfiguration {
-  settings?: GlobalSettings;
-  dataseries?: Doughnuts;
-  [k: string]: unknown;
-}
-export interface GlobalSettings {
+export interface InputData {
   title?: Title;
   subTitle?: Subtitle;
   columnLayout?: VerticalLayout;
+  dataseries?: Doughnuts;
+  [k: string]: unknown;
+}
+export interface Settings {
+  cutout?: DoghnutHoleSize;
+  averageLatest?: AverageLatestValues;
+  [k: string]: unknown;
+}
+/**
+ * Should be a chosen constant and usually not be assigned dynamically by a table column value.
+ */
+export interface SectionColor {
   [k: string]: unknown;
 }

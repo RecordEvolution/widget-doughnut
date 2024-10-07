@@ -1,7 +1,5 @@
 {
-    "settings": {
-        "columnLayout": false
-    },
+    "columnLayout": false,
     "dataseries": [
         {
             "label": "Doughnut 1",

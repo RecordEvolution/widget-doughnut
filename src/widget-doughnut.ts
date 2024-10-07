@@ -3,15 +3,15 @@ import { repeat } from 'lit/directives/repeat.js'
 import { property, state } from 'lit/decorators.js'
 // import * as echarts from "echarts";
 import type { EChartsOption, PieSeriesOption } from 'echarts'
-import { DoughnutChartConfiguration } from './definition-schema.js'
+import { InputData } from './definition-schema.js'
 
 // echarts.use([GaugeChart, CanvasRenderer]);
-type Dataseries = Exclude<DoughnutChartConfiguration['dataseries'], undefined>[number]
+type Dataseries = Exclude<InputData['dataseries'], undefined>[number]
 type Section = Exclude<Dataseries['sections'], undefined>[number]
 
 export class WidgetDoughnut extends LitElement {
     @property({ type: Object })
-    inputData?: DoughnutChartConfiguration
+    inputData?: InputData
 
     @state()
     private canvasList: Map<string, { chart?: any; dataSets: Dataseries[] }> = new Map()
@@ -96,7 +96,7 @@ export class WidgetDoughnut extends LitElement {
 
     disconnectedCallback() {
         super.disconnectedCallback()
-        if(this.resizeObserver) {
+        if (this.resizeObserver) {
             this.resizeObserver.disconnect()
         }
     }
@@ -195,7 +195,6 @@ export class WidgetDoughnut extends LitElement {
                     label: prefix + ds.label ?? '',
                     cutout: ds.cutout,
                     sections: ds.sections
-                        ?.map((s) => s.map((c) => ({ ...c, pivot: c.pivot ?? '' })))
                         ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv ?? '')))
                         .filter((d) => d.length)
                 }
@@ -214,14 +213,14 @@ export class WidgetDoughnut extends LitElement {
                 const data: any[] = []
                 ds.backgroundColor = ds.sections?.[0]?.map((d) => d.color) ?? []
                 if (typeof ds.averageLatest !== 'number' || !isNaN(ds.averageLatest)) ds.averageLatest = 1
-                const sections = ds?.sections?.slice(0, ds.averageLatest ?? 1) ?? []
+                const sections = ds?.sections?.slice(0, ds.styling?.averageLatest ?? 1) ?? []
                 const values = sections?.map((d) => d.length) ?? []
                 const numSections = Math.max(...values)
                 for (let i = 0; i < numSections; i++) {
                     // array from i-th sections values
                     const valueCol =
                         sections?.map((row) => row?.[i]?.value).filter((v) => v !== undefined) ?? []
-                    data.push(valueCol.reduce((p, c) => p + c, 0) / valueCol.length)
+                    data.push(valueCol.reduce((p, c) => (p ?? 0) + (c ?? 0), 0) ?? 0 / valueCol.length)
                 }
                 ds.data = data
                 // console.log('ready data', ds.label, ds.backgroundColor, ds.sections, ds.data)
@@ -253,9 +252,9 @@ export class WidgetDoughnut extends LitElement {
                 option.title.textStyle.fontSize = 18 * modifier
                 option.color = ds.sections?.[0]?.map((d) => d.color)
 
-                series.radius[0] = String(parseFloat(ds.cutout ?? '50%') * 0.6) + '%'
+                series.radius[0] = String(parseFloat(ds.styling?.cutout ?? '50%') * 0.6) + '%'
                 series.itemStyle.borderRadius = 5 * modifier
-                series2.radius[0] = String(parseFloat(ds.cutout ?? '50%') * 0.6) + '%'
+                series2.radius[0] = String(parseFloat(ds.styling?.cutout ?? '50%') * 0.6) + '%'
                 series2.itemStyle.borderRadius = 5 * modifier
                 // Sections
                 option.dataset[0].source = ds.sections?.[0] ?? []
@@ -353,12 +352,8 @@ export class WidgetDoughnut extends LitElement {
         return html`
             <div class="wrapper">
                 <header>
-                    <h3 class="paging" ?active=${this.inputData?.settings?.title}>
-                        ${this.inputData?.settings?.title}
-                    </h3>
-                    <p class="paging" ?active=${this.inputData?.settings?.subTitle}>
-                        ${this.inputData?.settings?.subTitle}
-                    </p>
+                    <h3 class="paging" ?active=${this.inputData?.title}>${this.inputData?.title}</h3>
+                    <p class="paging" ?active=${this.inputData?.subTitle}>${this.inputData?.subTitle}</p>
                 </header>
                 <div class="doughnut-container">
                     ${repeat(

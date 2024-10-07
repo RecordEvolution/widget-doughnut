@@ -1,33 +1,26 @@
 {
-    "title": "Doughnut-chart Configuration",
+    "title": "InputData",
     "type": "object",
     "properties": {
-        "settings": {
-            "title": "Global Settings",
-            "type": "object",
+        "title": {
+            "title": "Title",
             "order": 1,
-            "properties": {
-                "title": {
-                    "title": "Title",
-                    "order": 1,
-                    "type": "string"
-                },
-                "subTitle": {
-                    "title": "Subtitle",
-                    "order": 2,
-                    "type": "string"
-                },
-                "columnLayout": {
-                    "title": "Vertical Layout",
-                    "order": 3,
-                    "type": "boolean"
-                }
-            }
+            "type": "string"
+        },
+        "subTitle": {
+            "title": "Subtitle",
+            "order": 2,
+            "type": "string"
+        },
+        "columnLayout": {
+            "title": "Vertical Layout",
+            "order": 3,
+            "type": "boolean"
         },
         "dataseries": {
             "title": "Doughnuts",
             "type": "array",
-            "order": 2,
+            "order": 4,
             "items": {
                 "type": "object",
                 "properties": {
@@ -37,37 +30,34 @@
                         "required": true,
                         "type": "string"
                     },
-                    "cutout": {
-                        "title": "Doghnut Hole Size",
-                        "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
-                        "order": 4,
-                        "type": "string"
-                    },
-                    "averageLatest": {
-                        "title": "Average Latest Values",
-                        "description": "Calculate the average over the given number of newest rows. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification.",
-                        "order": 7,
-                        "type": "number"
-                    },
-                    "backgroundColors": {
-                        "title": "Section background colors",
-                        "description": "Background color for each section. This Array is one shorter than the number of sections.",
-                        "order": 8,
-                        "type": "array",
-                        "items": {
-                            "type": "color",
-                            "color": true
+                    "styling": {
+                        "title": "Settings",
+                        "description": "",
+                        "type": "object",
+                        "order": 3,
+                        "properties": {
+                            "cutout": {
+                                "title": "Doghnut Hole Size",
+                                "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
+                                "order": 4,
+                                "type": "string"
+                            },
+                            "averageLatest": {
+                                "title": "Average Latest Values",
+                                "description": "Calculate the average over the given number of newest rows. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification.",
+                                "order": 7,
+                                "type": "number"
+                            }
                         }
                     },
                     "sections": {
                         "title": "Data",
                         "description": "The Table with columns to display as sections in a Doughnut.",
-                        "order": 9,
+                        "order": 2,
                         "type": "array",
-                        "buffersize": 10,
                         "items": {
                             "title": "Sections of the Doughnut",
-                            "description": "One Doghnut ring will be drawn for the latest row in the chosen table. (If you chose averageLatest > 1, then the last 'averageLatest' rows will be aggregated to one row first.)",
+                            "description": "One Doghnut ring will be drawn for the latest row in the chosen table.",
                             "type": "array",
                             "items": {
                                 "type": "object",
@@ -92,8 +82,8 @@
                                         "color": true
                                     },
                                     "pivot": {
-                                        "title": "Pivot Column",
-                                        "description": "You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as pivot column, then you will get a doughnut for each city.",
+                                        "title": "Split Data by",
+                                        "description": "You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as split column, then you will get a doughnut for each city.",
                                         "order": 4,
                                         "type": "string"
                                     }
