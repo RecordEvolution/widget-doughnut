@@ -15,12 +15,14 @@
         "columnLayout": {
             "title": "Vertical Layout",
             "order": 3,
+            "dataDrivenDisabled": true,
             "type": "boolean"
         },
         "dataseries": {
             "title": "Doughnuts",
             "type": "array",
             "order": 4,
+            "dataDrivenDisabled": true,
             "items": {
                 "type": "object",
                 "properties": {
@@ -40,12 +42,14 @@
                                 "title": "Doghnut Hole Size",
                                 "description": "How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.",
                                 "order": 4,
+                                "dataDrivenDisabled": true,
                                 "type": "string"
                             },
                             "averageLatest": {
                                 "title": "Average Latest Values",
                                 "description": "Calculate the average over the given number of newest rows. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification.",
                                 "order": 7,
+                                "dataDrivenDisabled": true,
                                 "type": "number"
                             }
                         }
@@ -59,6 +63,7 @@
                             "title": "Sections of the Doughnut",
                             "description": "One Doghnut ring will be drawn for the latest row in the chosen table.",
                             "type": "array",
+                            "dataDrivenDisabled": true,
                             "items": {
                                 "type": "object",
                                 "properties": {
