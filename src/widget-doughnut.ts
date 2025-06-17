@@ -1,33 +1,70 @@
 import { html, css, LitElement, PropertyValueMap } from 'lit'
-import { repeat } from 'lit/directives/repeat.js'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property, query, state } from 'lit/decorators.js'
 // import * as echarts from "echarts";
-import type { ECharts, PieSeriesOption } from 'echarts'
+import type { EChartsOption, PieSeriesOption } from 'echarts'
 import { InputData } from './definition-schema.js'
+import * as echarts from 'echarts/core'
+import { TooltipComponent, LegendComponent, GridComponent, TitleComponent } from 'echarts/components'
+import { PieChart } from 'echarts/charts'
+import { LabelLayout } from 'echarts/features'
+import { CanvasRenderer } from 'echarts/renderers'
+
+echarts.use([
+    TooltipComponent,
+    LegendComponent,
+    PieChart,
+    CanvasRenderer,
+    LabelLayout,
+    GridComponent,
+    TitleComponent
+])
 
 // echarts.use([GaugeChart, CanvasRenderer]);
 type Dataseries = Exclude<InputData['dataseries'], undefined>[number]
-type ChartCombination = { echart?: ECharts; dataSets: Dataseries[] }
-
+type ChartCombination = {
+    echart?: echarts.ECharts
+    dataSets: Dataseries[]
+    element?: HTMLDivElement
+    doomed?: boolean
+}
+type Theme = {
+    theme_name: string
+    theme_object: any
+}
 @customElement('widget-doughnut-versionplaceholder')
 export class WidgetDoughnut extends LitElement {
     @property({ type: Object })
     inputData?: InputData
 
+    @property({ type: Object })
+    theme?: Theme
+
     @state()
     private canvasList: Map<string, ChartCombination> = new Map()
+
+    @query('.doughnut-container', true)
+    private chartContainer?: HTMLDivElement
+
+    @state()
+    private themeBgColor?: string
+
+    @state()
+    private themeColor?: string
 
     private resizeObserver: ResizeObserver
     boxes?: HTMLDivElement[]
     origWidth: number = 0
     origHeight: number = 0
-    template: any
+    template: EChartsOption
     modifier: number = 1
     version: string = 'versionplaceholder'
 
     constructor() {
         super()
-        this.resizeObserver = new ResizeObserver(this.adjustSizes.bind(this))
+        this.resizeObserver = new ResizeObserver(() => {
+            this.adjustSizes()
+            this.applyData()
+        })
         this.resizeObserver.observe(this)
 
         this.template = {
@@ -49,24 +86,12 @@ export class WidgetDoughnut extends LitElement {
             tooltip: {
                 show: true
             },
-            dataset: [
-                {
-                    source: [
-                        { value: 1048, name: 'Search Engine' },
-                        { value: 735, name: 'Direct' },
-                        { value: 580, name: 'Email' },
-                        { value: 484, name: 'Union Ads' },
-                        { value: 300, name: 'Video Ads' }
-                    ]
-                }
-            ],
             series: [
                 {
                     type: 'pie',
-                    animationType: 'expansion',
-                    animationTypeUpdate: 'transition',
                     radius: ['20%', '60%'],
                     center: ['50%', '50%'],
+                    avoidLabelOverlap: true,
                     itemStyle: {
                         borderRadius: 5
                     },
@@ -80,8 +105,7 @@ export class WidgetDoughnut extends LitElement {
                 } as PieSeriesOption,
                 {
                     type: 'pie',
-                    animationType: 'expansion',
-                    animationTypeUpdate: 'transition',
+                    avoidLabelOverlap: true,
                     radius: ['20%', '60%'],
                     center: ['50%', '50%'],
                     itemStyle: {
@@ -105,6 +129,15 @@ export class WidgetDoughnut extends LitElement {
     update(changedProperties: Map<string, any>) {
         if (changedProperties.has('inputData')) {
             this.transformData()
+            this.sizingSetup()
+            this.adjustSizes()
+            this.applyData()
+        }
+
+        if (changedProperties.has('theme')) {
+            this.registerTheme(this.theme)
+            this.deleteCharts()
+            this.transformData()
             this.adjustSizes()
             this.applyData()
         }
@@ -113,10 +146,17 @@ export class WidgetDoughnut extends LitElement {
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        this.sizingSetup()
         this.transformData()
+        this.sizingSetup()
         this.adjustSizes()
         this.applyData()
+    }
+
+    registerTheme(theme?: Theme) {
+        console.log('Registering theme', theme)
+        if (!theme || !theme.theme_object || !theme.theme_name) return
+
+        echarts.registerTheme(theme.theme_name, theme.theme_object)
     }
 
     sizingSetup() {
@@ -133,11 +173,9 @@ export class WidgetDoughnut extends LitElement {
     }
 
     adjustSizes() {
-        // if (!this.origHeight) return
-        const container = this.shadowRoot?.querySelector('.doughnut-container') as HTMLDivElement
-        if (!container) return
-        const userWidth = container.getBoundingClientRect().width
-        const userHeight = container.getBoundingClientRect().height
+        if (!this.chartContainer) return
+        const userWidth = this.chartContainer.getBoundingClientRect().width
+        const userHeight = this.chartContainer.getBoundingClientRect().height
         const count = this.canvasList.size ?? 0
 
         const width = this.origWidth
@@ -166,8 +204,23 @@ export class WidgetDoughnut extends LitElement {
         const fit = fits.find((f) => f.size === maxSize)
         const modifier = fit?.m ?? 0
 
-        // console.log('FITS count', count, userWidth, userHeight, 'modifier', modifier, 'cols',fit?.c, 'rows', fit?.r, 'new size', fit?.size.toFixed(0), 'total space', (userWidth* userHeight).toFixed(0))
         this.boxes = Array.from(this?.shadowRoot?.querySelectorAll('.chart') as NodeListOf<HTMLDivElement>)
+        // console.log(
+        //     'FITS count',
+        //     count,
+        //     userWidth,
+        //     userHeight,
+        //     'modifier',
+        //     modifier,
+        //     'cols',
+        //     fit?.c,
+        //     'rows',
+        //     fit?.r,
+        //     'new size',
+        //     fit?.size.toFixed(0),
+        //     'total space',
+        //     (userWidth * userHeight).toFixed(0)
+        // )
 
         this.boxes?.forEach((box) =>
             box.setAttribute('style', `width:${modifier * width}px; height:${modifier * height}px`)
@@ -175,8 +228,8 @@ export class WidgetDoughnut extends LitElement {
 
         this.modifier = modifier
 
-        this.canvasList.forEach((chartM: ChartCombination, chartName: string) => {
-            if (chartM.echart) chartM.echart.resize()
+        this.canvasList.forEach((chartM) => {
+            chartM.echart?.resize()
         })
     }
 
@@ -191,20 +244,25 @@ export class WidgetDoughnut extends LitElement {
             const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot))].sort()
             // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
             distincts.forEach((piv, i) => {
-                const prefix = piv ? `${piv} - ` : ''
+                const prefix = piv ?? ''
+                const label = ds.label ?? ''
+                const name = prefix + (!!prefix && !!label ? ' - ' : '') + label
+                const data = ds.sections
+                    ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv)))
+                    .filter((d) => d.length)
+                const data2 =
+                    data?.map((d) =>
+                        d.map((s) => ({ name: s.name, value: s.value, itemStyle: { color: s.color } }))
+                    ) ?? []
+
                 const pds: any = {
-                    label: prefix + ds.label,
+                    label: name,
                     cutout: ds.cutout,
-                    sections: ds.sections
-                        ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv)))
-                        .filter((d) => d.length)
+                    sections: data2
                 }
-                // If the chartName ends with #pivot# then create a seperate chart for each pivoted dataseries
-                if (!this.canvasList.has(pds.label)) {
-                    // initialize new charts
-                    this.canvasList.set(pds.label, { echart: undefined, dataSets: [] as Dataseries[] })
-                }
-                this.canvasList.get(pds.label)?.dataSets.push(pds)
+
+                const chart = this.setupChart(name)
+                chart?.dataSets.push(pds)
             })
         })
 
@@ -246,50 +304,76 @@ export class WidgetDoughnut extends LitElement {
         const modifier = this.modifier
         this.requestUpdate()
         await this.updateComplete
-        this.setupCharts()
-        this.canvasList.forEach((chartM) => {
+        this.canvasList.forEach((chartM, label) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
-                const option = structuredClone(this.template)
+                const option: any = structuredClone(this.template)
                 const series = option.series[0],
                     series2 = option.series[1]
 
                 // Title
                 option.title.text = ds.label
                 option.title.textStyle.fontSize = 18 * modifier
-                option.color = ds.sections?.[0]?.map((d) => d.color)
+                // option.color = ds.sections?.[0]?.map((d) => d.color)
 
                 series.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
                 series.itemStyle.borderRadius = 5 * modifier
                 series2.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
                 series2.itemStyle.borderRadius = 5 * modifier
                 // Sections
-                option.dataset[0].source = ds.sections?.[0] ?? []
                 // series.data[0].name = ds.unit
+                series.data = ds.sections?.[0]
+                series2.data = ds.sections?.[0]
 
                 // Labels
                 series.label.fontSize = 12 * modifier
                 series2.label.fontSize = 14 * modifier
-                // @ts-ignore
-                // const colorSections = ds.backgroundColors?.map((b: string, i) => [(ds.sections?.[i + 1] - ga.min) / ds.range, b]).filter(([s]) => !isNaN(s))
 
                 // Apply
-                if (chartM.echart) chartM.echart?.setOption(option)
+                const oldOption: any = chartM.echart?.getOption() ?? {}
+                const notMerge = oldOption.series?.length !== chartM.dataSets.length
+                chartM.echart?.setOption(option, { notMerge })
             }
         })
     }
 
-    setupCharts() {
-        // remove the gauge canvases of non provided data series
-        this.canvasList.forEach((chartM: ChartCombination, chartName: string) => {
-            if (!chartM.dataSets.length) this.canvasList.delete(chartName)
-            if (chartM.echart) return
-            const canvas = this.shadowRoot?.querySelector(`[name="${chartName}"]`) as HTMLCanvasElement
-            if (!canvas) return
-            // @ts-ignore
-            chartM.echart = echarts.init(canvas)
-            chartM.echart.setOption(structuredClone(this.template))
+    deleteCharts() {
+        this.canvasList.forEach((chart, label) => {
+            chart.echart?.dispose()
+            chart.element?.remove()
+            this.canvasList.delete(label)
         })
+    }
+
+    setupChart(label: string) {
+        const existingChart = this.canvasList.get(label)
+
+        if (existingChart) {
+            delete existingChart.doomed
+            return existingChart
+        }
+
+        if (!this.chartContainer) {
+            console.warn('Chart container not found')
+            return
+        }
+        const newContainer = document.createElement('div')
+        newContainer.setAttribute('name', label)
+        newContainer.setAttribute('class', 'chart')
+        this.chartContainer.appendChild(newContainer)
+
+        const newChart = echarts.init(newContainer, this.theme?.theme_name)
+        const chart = {
+            echart: newChart,
+            dataSets: [] as Dataseries[],
+            element: newContainer
+        }
+        this.canvasList.set(label, chart)
+        //@ts-ignore
+        this.themeBgColor = newChart._theme?.backgroundColor
+        //@ts-ignore
+        this.themeColor = newChart._theme?.title?.textStyle?.color
+        return chart
     }
 
     static styles = css`
@@ -300,6 +384,7 @@ export class WidgetDoughnut extends LitElement {
             box-sizing: border-box;
             position: relative;
             margin: auto;
+            background-color: var(--re-background-color);
         }
 
         .paging:not([active]) {
@@ -367,25 +452,13 @@ export class WidgetDoughnut extends LitElement {
 
     render() {
         return html`
-            <div class="wrapper">
+            <div class="wrapper" style="background-color: ${this.themeBgColor}; color: ${this.themeColor}">
                 <header>
                     <h3 class="paging" ?active=${this.inputData?.title}>${this.inputData?.title}</h3>
                     <p class="paging" ?active=${this.inputData?.subTitle}>${this.inputData?.subTitle}</p>
                 </header>
                 <div class="paging no-data" ?active=${!this.canvasList.size}>No Data</div>
-                <div class="doughnut-container">
-                    ${repeat(
-                        [...this.canvasList.entries()].sort(),
-                        ([chartName]) => chartName,
-                        ([chartName]) => html`
-                            <div
-                                name="${chartName}"
-                                class="chart"
-                                style="min-width: 450px; min-height: 300px; width: 450px; height: 300px;"
-                            ></div>
-                        `
-                    )}
-                </div>
+                <div class="doughnut-container"></div>
             </div>
         `
     }

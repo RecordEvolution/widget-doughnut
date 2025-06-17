@@ -19,8 +19,9 @@ export default {
     },
     plugins: [
         replace({
-            versionplaceholder: npmPackage.version,
-            preventAssignment: true
+            preventAssignment: true,
+            'process.env.NODE_ENV': JSON.stringify('production'),
+            versionplaceholder: npmPackage.version
         }),
         typescript({ sourceMap: true }),
         nodeResolve(),
