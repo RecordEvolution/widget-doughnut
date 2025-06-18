@@ -45,11 +45,9 @@ export class WidgetDoughnut extends LitElement {
     @query('.doughnut-container', true)
     private chartContainer?: HTMLDivElement
 
-    @state()
-    private themeBgColor?: string
-
-    @state()
-    private themeColor?: string
+    @state() private themeBgColor?: string
+    @state() private themeTitleColor?: string
+    @state() private themeSubtitleColor?: string
 
     private resizeObserver: ResizeObserver
     boxes?: HTMLDivElement[]
@@ -157,6 +155,12 @@ export class WidgetDoughnut extends LitElement {
         if (!theme || !theme.theme_object || !theme.theme_name) return
 
         echarts.registerTheme(theme.theme_name, theme.theme_object)
+        const cssTextColor = getComputedStyle(this).getPropertyValue('--re-text-color').trim()
+        const cssBgColor = getComputedStyle(this).getPropertyValue('--re-background-color').trim()
+        this.themeBgColor = cssBgColor || this.theme?.theme_object?.backgroundColor
+        this.themeTitleColor = cssTextColor || this.theme?.theme_object?.title?.textStyle?.color
+        this.themeSubtitleColor =
+            cssTextColor || this.theme?.theme_object?.title?.subtextStyle?.color || this.themeTitleColor
     }
 
     sizingSetup() {
@@ -379,12 +383,10 @@ export class WidgetDoughnut extends LitElement {
     static styles = css`
         :host {
             display: block;
-            color: var(--re-text-color, #000);
             font-family: sans-serif;
             box-sizing: border-box;
             position: relative;
             margin: auto;
-            background-color: var(--re-background-color);
         }
 
         .paging:not([active]) {
@@ -421,7 +423,6 @@ export class WidgetDoughnut extends LitElement {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: var(--re-text-color, #000) !important;
         }
         p {
             margin: 10px 0 0 0;
@@ -431,7 +432,6 @@ export class WidgetDoughnut extends LitElement {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: var(--re-text-color, #000) !important;
         }
 
         .chart {
@@ -440,7 +440,6 @@ export class WidgetDoughnut extends LitElement {
         }
         .no-data {
             font-size: 20px;
-            color: var(--re-text-color, #000);
             display: flex;
             height: 100%;
             width: 100%;
@@ -452,10 +451,19 @@ export class WidgetDoughnut extends LitElement {
 
     render() {
         return html`
-            <div class="wrapper" style="background-color: ${this.themeBgColor}; color: ${this.themeColor}">
+            <div
+                class="wrapper"
+                style="background-color: ${this.themeBgColor}; color: ${this.themeTitleColor}"
+            >
                 <header>
                     <h3 class="paging" ?active=${this.inputData?.title}>${this.inputData?.title}</h3>
-                    <p class="paging" ?active=${this.inputData?.subTitle}>${this.inputData?.subTitle}</p>
+                    <p
+                        class="paging"
+                        ?active=${this.inputData?.subTitle}
+                        style="color: ${this.themeSubtitleColor}"
+                    >
+                        ${this.inputData?.subTitle}
+                    </p>
                 </header>
                 <div class="paging no-data" ?active=${!this.canvasList.size}>No Data</div>
                 <div class="doughnut-container"></div>

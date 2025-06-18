@@ -1,4 +1,6 @@
 {
+    "title": "test",
+    "subTitle": "Subtitle",
     "columnLayout": false,
     "dataseries": [
         {
