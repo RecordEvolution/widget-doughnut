@@ -144,6 +144,7 @@ export class WidgetDoughnut extends LitElement {
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        this.registerTheme(this.theme)
         this.transformData()
         this.sizingSetup()
         this.adjustSizes()
@@ -151,16 +152,23 @@ export class WidgetDoughnut extends LitElement {
     }
 
     registerTheme(theme?: Theme) {
-        console.log('Registering theme', theme)
-        if (!theme || !theme.theme_object || !theme.theme_name) return
-
-        echarts.registerTheme(theme.theme_name, theme.theme_object)
         const cssTextColor = getComputedStyle(this).getPropertyValue('--re-text-color').trim()
         const cssBgColor = getComputedStyle(this).getPropertyValue('--re-background-color').trim()
         this.themeBgColor = cssBgColor || this.theme?.theme_object?.backgroundColor
         this.themeTitleColor = cssTextColor || this.theme?.theme_object?.title?.textStyle?.color
         this.themeSubtitleColor =
             cssTextColor || this.theme?.theme_object?.title?.subtextStyle?.color || this.themeTitleColor
+        console.log(
+            'Theme colors',
+            this.themeBgColor,
+            this.themeTitleColor,
+            this.themeSubtitleColor,
+            cssBgColor,
+            cssTextColor
+        )
+        if (!theme || !theme.theme_object || !theme.theme_name) return
+
+        echarts.registerTheme(theme.theme_name, theme.theme_object)
     }
 
     sizingSetup() {
@@ -264,7 +272,6 @@ export class WidgetDoughnut extends LitElement {
                     cutout: ds.cutout,
                     sections: data2
                 }
-
                 const chart = this.setupChart(name)
                 chart?.dataSets.push(pds)
             })
@@ -366,17 +373,16 @@ export class WidgetDoughnut extends LitElement {
         newContainer.setAttribute('class', 'chart')
         this.chartContainer.appendChild(newContainer)
 
-        const newChart = echarts.init(newContainer, this.theme?.theme_name)
+        const theme =
+            this.theme?.theme_name === '---' || !this.theme?.theme_name ? 'light' : this.theme?.theme_name
+        console.log('Using theme', theme)
+        const newChart = echarts.init(newContainer, theme)
         const chart = {
             echart: newChart,
             dataSets: [] as Dataseries[],
             element: newContainer
         }
         this.canvasList.set(label, chart)
-        //@ts-ignore
-        this.themeBgColor = newChart._theme?.backgroundColor
-        //@ts-ignore
-        this.themeColor = newChart._theme?.title?.textStyle?.color
         return chart
     }
 
