@@ -253,7 +253,7 @@ export class WidgetDoughnut extends LitElement {
             ds.label = ds.label ?? ''
 
             // pivot data
-            const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot))].sort()
+            const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot ?? ''))].sort()
             // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
             distincts.forEach((piv, i) => {
                 const prefix = piv ?? ''
