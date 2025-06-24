@@ -66,13 +66,15 @@ export class WidgetDoughnut extends LitElement {
         this.resizeObserver.observe(this)
 
         this.template = {
-            title: {
-                text: 'Pie',
-                left: 'center',
-                textStyle: {
-                    fontSize: 10
+            title: [
+                {
+                    text: 'Pie',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 10
+                    }
                 }
-            },
+            ],
             color: undefined,
             // toolbox: {
             //   show: true,
@@ -158,14 +160,6 @@ export class WidgetDoughnut extends LitElement {
         this.themeTitleColor = cssTextColor || this.theme?.theme_object?.title?.textStyle?.color
         this.themeSubtitleColor =
             cssTextColor || this.theme?.theme_object?.title?.subtextStyle?.color || this.themeTitleColor
-        console.log(
-            'Theme colors',
-            this.themeBgColor,
-            this.themeTitleColor,
-            this.themeSubtitleColor,
-            cssBgColor,
-            cssTextColor
-        )
         if (!theme || !theme.theme_object || !theme.theme_name) return
 
         echarts.registerTheme(theme.theme_name, theme.theme_object)
@@ -248,7 +242,10 @@ export class WidgetDoughnut extends LitElement {
     async transformData() {
         if (!this?.inputData?.dataseries?.length) return
         // reset all existing chart dataseries
-        this.canvasList.forEach((chartM: ChartCombination) => (chartM.dataSets = []))
+        this.canvasList.forEach((chartM) => {
+            chartM.dataSets = []
+            chartM.doomed = true
+        })
         this.inputData.dataseries.forEach((ds) => {
             ds.label = ds.label ?? ''
 
@@ -306,9 +303,17 @@ export class WidgetDoughnut extends LitElement {
                 }
             })
         })
-        // prevent duplicate transformation
-        // this.inputData.dataseries = []
-        // console.log('new doughnut datasets', this.canvasList)
+
+        const doomedCharts: string[] = []
+        // remove all doomed charts
+        this.canvasList.forEach((chart, label) => {
+            if (!chart.doomed) return
+            chart.echart?.dispose()
+            chart.element?.remove()
+            doomedCharts.push(label)
+        })
+
+        doomedCharts.forEach((label) => this.canvasList.delete(label))
     }
 
     async applyData() {
@@ -318,13 +323,13 @@ export class WidgetDoughnut extends LitElement {
         this.canvasList.forEach((chartM, label) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
-                const option: any = structuredClone(this.template)
+                const option: any = chartM.echart?.getOption() ?? window.structuredClone(this.template)
                 const series = option.series[0],
                     series2 = option.series[1]
 
                 // Title
-                option.title.text = ds.label
-                option.title.textStyle.fontSize = 18 * modifier
+                option.title[0].text = ds.label
+                option.title[0].textStyle.fontSize = 18 * modifier
                 // option.color = ds.sections?.[0]?.map((d) => d.color)
 
                 series.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
@@ -341,9 +346,7 @@ export class WidgetDoughnut extends LitElement {
                 series2.label.fontSize = 14 * modifier
 
                 // Apply
-                const oldOption: any = chartM.echart?.getOption() ?? {}
-                const notMerge = oldOption.series?.length !== chartM.dataSets.length
-                chartM.echart?.setOption(option, { notMerge })
+                chartM.echart?.setOption(option)
             }
         })
     }
@@ -375,7 +378,6 @@ export class WidgetDoughnut extends LitElement {
 
         const theme =
             this.theme?.theme_name === '---' || !this.theme?.theme_name ? 'light' : this.theme?.theme_name
-        console.log('Using theme', theme)
         const newChart = echarts.init(newContainer, theme)
         const chart = {
             echart: newChart,
