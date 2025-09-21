@@ -20,7 +20,7 @@
         "unlink": "npm unlink --global && cd ../RESWARM/frontend && npm unlink @record-evolution/widget-doughnut && npm i @record-evolution/widget-doughnut",
         "types": "cat src/definition-schema.json | json2ts > src/definition-schema.d.ts",
         "start:build": "npm run build && es-dev-server --root-dir dist --app-index index.html --compatibility none --open",
-        "release": "npm run build && npm run types && npm version patch --tag-version-prefix='' && git push && git push --tag"
+        "release": "npm run build && npm run types && npm version patch --tag-version-prefix='' && git push && git push --tag && npm run build"
     },
     "dependencies": {
         "echarts": "^5.6.0",

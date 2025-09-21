@@ -45,30 +45,26 @@
         },
 
         {
-            "label": "Demo Doughnut 2",
+            "label": "",
             "chartName": "test2",
             "cutout": "20%",
             "averageLatest": 1,
             "sections": [
                 [
                     {
-                        "name": "Apps Running",
-                        "pivot": "Frankfurt",
+                        "name": "Apps Stopped",
                         "value": 36
                     },
                     {
-                        "name": "Apps Stopped",
-                        "pivot": "Frankfurt",
+                        "name": "Apps Running",
                         "value": 33
                     },
                     {
                         "name": "Devices Downloading",
-                        "pivot": "Frankfurt",
                         "value": 12
                     },
                     {
                         "name": "Devices Error",
-                        "pivot": "Frankfurt",
                         "value": 4
                     }
                 ]
