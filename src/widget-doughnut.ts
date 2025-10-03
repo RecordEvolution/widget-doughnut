@@ -51,8 +51,8 @@ export class WidgetDoughnut extends LitElement {
 
     private resizeObserver: ResizeObserver
     boxes?: HTMLDivElement[]
-    origWidth: number = 0
-    origHeight: number = 0
+    origWidth: number = 320
+    origHeight: number = 200
     template: EChartsOption
     modifier: number = 1
     version: string = 'versionplaceholder'
@@ -70,6 +70,7 @@ export class WidgetDoughnut extends LitElement {
                 {
                     text: 'Pie',
                     left: 'center',
+                    top: 0,
                     textStyle: {
                         fontSize: 10
                     }
@@ -95,12 +96,22 @@ export class WidgetDoughnut extends LitElement {
                     itemStyle: {
                         borderRadius: 5
                     },
-                    roseType: undefined,
-                    label: {
+                    label2: {
                         // formatter: (d: any) => d.value?.toFixed(),
                         //position: 'inside'
                         fontSize: 12,
                         alignTo: 'none'
+                    },
+                    label: {
+                        show: true,
+                        position: 'outer', // place labels outside the slices
+                        distance: 20, // increase space from doughnut edge (default ~5)
+                        bleedMargin: 10 // extra margin to avoid clipping
+                    },
+                    labelLine: {
+                        show: true,
+                        length: 10, // length of connector line
+                        length2: 5 // second segment length
                     }
                 } as PieSeriesOption,
                 {
@@ -111,7 +122,6 @@ export class WidgetDoughnut extends LitElement {
                     itemStyle: {
                         borderRadius: 5
                     },
-                    roseType: undefined,
                     label: { position: 'inside', formatter: '{d}%', fontSize: 18 },
                     percentPrecision: 0
                 } as PieSeriesOption
@@ -129,7 +139,13 @@ export class WidgetDoughnut extends LitElement {
     update(changedProperties: Map<string, any>) {
         if (changedProperties.has('inputData')) {
             this.transformData()
-            this.sizingSetup()
+        }
+
+        super.update(changedProperties)
+    }
+
+    updated(changedProperties: Map<string, any>) {
+        if (changedProperties.has('inputData')) {
             this.adjustSizes()
             this.applyData()
         }
@@ -142,13 +158,12 @@ export class WidgetDoughnut extends LitElement {
             this.applyData()
         }
 
-        super.update(changedProperties)
+        super.updated(changedProperties)
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         this.registerTheme(this.theme)
         this.transformData()
-        this.sizingSetup()
         this.adjustSizes()
         this.applyData()
     }
@@ -163,19 +178,6 @@ export class WidgetDoughnut extends LitElement {
         if (!theme || !theme.theme_object || !theme.theme_name) return
 
         echarts.registerTheme(theme.theme_name, theme.theme_object)
-    }
-
-    sizingSetup() {
-        if (this.origWidth !== 0 && this.origHeight !== 0) return
-
-        this.boxes = Array.from(this?.shadowRoot?.querySelectorAll('.chart') as NodeListOf<HTMLDivElement>)
-        if (!this.boxes.length) return
-        this.origWidth =
-            this.boxes?.map((b) => b.getBoundingClientRect().width).reduce((p, c) => (c > p ? c : p), 0) ?? 0
-        this.origHeight =
-            this.boxes?.map((b) => b.getBoundingClientRect().height).reduce((p, c) => (c > p ? c : p), 0) ?? 0
-
-        // console.log('OrigWidth', this.origWidth, this.origHeight)
     }
 
     adjustSizes() {
@@ -194,7 +196,7 @@ export class WidgetDoughnut extends LitElement {
             const uhgap = userHeight - 12 * (r - 1)
             const m = uwgap / width / c
             const size = m * m * width * height * count
-            if (r * m * height <= uhgap) fits.push({ c, m, size, width, height, userWidth, userHeight })
+            if (r * m * height <= uhgap) fits.push({ c, r, m, size, width, height, userWidth, userHeight })
         }
 
         for (let r = 1; r <= count; r++) {
@@ -203,14 +205,15 @@ export class WidgetDoughnut extends LitElement {
             const uhgap = userHeight - 12 * (r - 1)
             const m = uhgap / height / r
             const size = m * m * width * height * count
-            if (c * m * width <= uwgap) fits.push({ r, m, size, width, height, userWidth, userHeight })
+            if (c * m * width <= uwgap) fits.push({ c, r, m, size, width, height, userWidth, userHeight })
         }
 
         const maxSize = fits.reduce((p, c) => (c.size < p ? p : c.size), 0)
         const fit = fits.find((f) => f.size === maxSize)
-        const modifier = fit?.m ?? 0
+        if (!fit) return
+        const modifier = fit.m ?? 0
 
-        this.boxes = Array.from(this?.shadowRoot?.querySelectorAll('.chart') as NodeListOf<HTMLDivElement>)
+        this.boxes = Array.from(this.chartContainer?.querySelectorAll('.chart') as NodeListOf<HTMLDivElement>)
         // console.log(
         //     'FITS count',
         //     count,
@@ -227,6 +230,8 @@ export class WidgetDoughnut extends LitElement {
         //     'total space',
         //     (userWidth * userHeight).toFixed(0)
         // )
+
+        this.chartContainer.style.gridTemplateColumns = `repeat(${fit.c}, 1fr)`
 
         this.boxes?.forEach((box) =>
             box.setAttribute('style', `width:${modifier * width}px; height:${modifier * height}px`)
@@ -318,8 +323,6 @@ export class WidgetDoughnut extends LitElement {
 
     async applyData() {
         const modifier = this.modifier
-        this.requestUpdate()
-        await this.updateComplete
         this.canvasList.forEach((chartM, label) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
@@ -329,7 +332,8 @@ export class WidgetDoughnut extends LitElement {
 
                 // Title
                 option.title[0].text = ds.label
-                option.title[0].textStyle.fontSize = 18 * modifier
+                option.title[0].top = 0 * modifier
+                option.title[0].textStyle.fontSize = 14 * modifier
                 // option.color = ds.sections?.[0]?.map((d) => d.color)
 
                 series.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
@@ -342,8 +346,8 @@ export class WidgetDoughnut extends LitElement {
                 series2.data = ds.sections?.[0]
 
                 // Labels
-                series.label.fontSize = 12 * modifier
-                series2.label.fontSize = 14 * modifier
+                series.label.fontSize = 11 * modifier // outside text labels
+                series2.label.fontSize = 10 * modifier // inside percentage labels
 
                 // Apply
                 chartM.echart?.setOption(option)
@@ -408,13 +412,11 @@ export class WidgetDoughnut extends LitElement {
             width: 100%;
             padding: 16px;
             box-sizing: border-box;
+            gap: 12px;
         }
         .doughnut-container {
-            display: flex;
+            display: grid;
             flex: 1;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
             overflow: hidden;
             position: relative;
             gap: 12px;
@@ -423,7 +425,6 @@ export class WidgetDoughnut extends LitElement {
         header {
             display: flex;
             flex-direction: column;
-            margin: 0 0 16px 0;
         }
         h3 {
             margin: 0;
