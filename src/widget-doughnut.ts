@@ -31,6 +31,18 @@ type Theme = {
     theme_name: string
     theme_object: any
 }
+
+const DEFAULT_ECHARTS_COLORS = [
+    '#5470c6',
+    '#91cc75',
+    '#fac858',
+    '#ee6666',
+    '#73c0de',
+    '#3ba272',
+    '#fc8452',
+    '#9a60b4',
+    '#ea7ccc'
+]
 @customElement('widget-doughnut-versionplaceholder')
 export class WidgetDoughnut extends LitElement {
     @property({ type: Object })
@@ -266,7 +278,13 @@ export class WidgetDoughnut extends LitElement {
                     .filter((d) => d.length)
                 const data2 =
                     data?.map((d) =>
-                        d.map((s) => ({ name: s.name, value: s.value, itemStyle: { color: s.color } }))
+                        d.map((s) => {
+                            const color = (s as any)?.color
+                            if (color === '' || color == null) {
+                                return { name: s.name, value: s.value }
+                            }
+                            return { name: s.name, value: s.value, itemStyle: { color } }
+                        })
                     ) ?? []
 
                 const pds: any = {
@@ -283,7 +301,7 @@ export class WidgetDoughnut extends LitElement {
         this.canvasList.forEach(({ echart, dataSets }) => {
             dataSets.forEach((ds) => {
                 const data: any[] = []
-                ds.backgroundColor = ds.sections?.[0]?.map((d) => d.color) ?? []
+                ds.backgroundColor = ds.sections?.[0]?.map((d: any) => d?.itemStyle?.color) ?? []
                 ds.settings ??= {}
                 if (typeof ds.settings.averageLatest !== 'number' || isNaN(ds.settings.averageLatest)) {
                     ds.settings.averageLatest = 1
@@ -301,6 +319,9 @@ export class WidgetDoughnut extends LitElement {
                         valueCol.reduce((p, c) => (p ?? 0) + (c ?? 0), 0) ?? 0 / valueCol.length
                 }
                 ds.sections = [newSection]
+
+                // If the user didn't provide any per-slice colors, rely on theme/default palette.
+                // (We intentionally do not force itemStyle colors here so ECharts theme palettes work.)
 
                 ds.datalabels = {
                     color: '#FFF',
@@ -323,6 +344,12 @@ export class WidgetDoughnut extends LitElement {
 
     async applyData() {
         const modifier = this.modifier
+
+        const palette =
+            (Array.isArray(this.theme?.theme_object?.color) && this.theme?.theme_object?.color?.length
+                ? this.theme?.theme_object?.color
+                : DEFAULT_ECHARTS_COLORS) ?? DEFAULT_ECHARTS_COLORS
+
         this.canvasList.forEach((chartM, label) => {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
@@ -334,7 +361,25 @@ export class WidgetDoughnut extends LitElement {
                 option.title[0].text = ds.label
                 option.title[0].top = 0 * modifier
                 option.title[0].textStyle.fontSize = 14 * modifier
-                // option.color = ds.sections?.[0]?.map((d) => d.color)
+
+                const sliceData: any[] = ds.sections?.[0] ?? []
+                // Check if ANY slice has an explicit color
+                const hasAnyExplicitColor = sliceData.some(
+                    (d) => d?.itemStyle?.color != null && d?.itemStyle?.color !== ''
+                )
+
+                if (!hasAnyExplicitColor) {
+                    // No user-provided colors: use theme or default palette
+                    option.color = palette
+                } else {
+                    // Some slices have explicit colors: fill in missing ones from palette
+                    sliceData.forEach((d, idx) => {
+                        if (!d?.itemStyle?.color) {
+                            d.itemStyle = d.itemStyle ?? {}
+                            d.itemStyle.color = palette[idx % palette.length]
+                        }
+                    })
+                }
 
                 series.radius[0] = String(parseFloat(ds.settings?.cutout ?? '50%') * 0.6) + '%'
                 series.itemStyle.borderRadius = 5 * modifier
