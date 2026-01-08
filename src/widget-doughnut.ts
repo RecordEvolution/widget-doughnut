@@ -187,9 +187,15 @@ export class WidgetDoughnut extends LitElement {
         this.themeTitleColor = cssTextColor || this.theme?.theme_object?.title?.textStyle?.color
         this.themeSubtitleColor =
             cssTextColor || this.theme?.theme_object?.title?.subtextStyle?.color || this.themeTitleColor
+
         if (!theme || !theme.theme_object || !theme.theme_name) return
 
-        echarts.registerTheme(theme.theme_name, theme.theme_object)
+        // Filter out component keys that would trigger warnings about unregistered components
+        const excludeKeys = ['parallel', 'geo', 'timeline', 'visualMap', 'markPoint', 'toolbox', 'dataZoom']
+        const filteredTheme = Object.fromEntries(
+            Object.entries(theme.theme_object).filter(([key]) => !excludeKeys.includes(key))
+        )
+        echarts.registerTheme(theme.theme_name, filteredTheme)
     }
 
     adjustSizes() {
@@ -444,6 +450,7 @@ export class WidgetDoughnut extends LitElement {
             box-sizing: border-box;
             position: relative;
             margin: auto;
+            container-type: size;
         }
 
         .paging:not([active]) {
@@ -455,7 +462,7 @@ export class WidgetDoughnut extends LitElement {
             flex-direction: column;
             height: 100%;
             width: 100%;
-            padding: 16px;
+            padding: 2cqh 2cqw;
             box-sizing: border-box;
             gap: 12px;
         }

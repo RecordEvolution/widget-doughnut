@@ -31,18 +31,19 @@
 
     <body>
         <div id="demo"></div>
+
         <script src="https://storage.googleapis.com/reswarm-images/ObjectRandomizer.js"></script>
 
         <script type="module">
             import { render } from 'lit'
             import { html, unsafeStatic } from 'lit/static-html.js'
-            import '../dist/widget-doughnut.js'
-            const packageJson = await fetch('../package.json').then((res) => res.json())
+            import packageJson from '../package.json'
             const tag = unsafeStatic(`widget-doughnut-${packageJson.version}`)
-
-            const data = await fetch('../src/default-data.json').then((res) => res.json())
-            const themeObject = await fetch('themes/light.json').then((res) => res.json())
+            import '../src/widget-doughnut.ts'
+            import data from '../src/default-data.json'
+            import themeObject from './themes/light.json'
             const theme = { theme_name: 'light', theme_object: themeObject }
+
             render(
                 html`
                     <${tag} .theme="${theme}" .inputData=${data}>
@@ -52,13 +53,13 @@
                 `,
                 document.getElementById('demo')
             )
+
             const widget = document.getElementById('demo').children[0]
             const keyPathsToRandomize = ['dataseries.0.sections.0.0.value', 'settings.title']
-            const inter = setInterval(() => {
+
+            setInterval(() => {
                 const randomizedObj = randomizeObjectValues(data, keyPathsToRandomize)
-                // console.log('random', randomizedObj.dataseries[0].data[0])
                 widget.inputData = randomizedObj
-                // clearInterval(inter)
             }, 1000)
         </script>
     </body>
