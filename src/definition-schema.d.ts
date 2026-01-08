@@ -30,38 +30,38 @@ export type SplitDataBy = string;
  * One Doghnut ring will be drawn for the latest row in the chosen table.
  */
 export type SectionsOfTheDoughnut = {
-  name?: SectionLabel;
-  value?: Value;
-  color?: SectionColor;
-  pivot?: SplitDataBy;
-  [k: string]: unknown;
+    name?: SectionLabel;
+    value?: Value;
+    color?: SectionColor;
+    pivot?: SplitDataBy;
+    [k: string]: unknown;
 }[];
 /**
  * The Table with columns to display as sections in a Doughnut.
  */
 export type Data = SectionsOfTheDoughnut[];
 export type Doughnuts = {
-  label?: Label;
-  settings?: Settings;
-  sections?: Data;
-  [k: string]: unknown;
+    label?: Label;
+    settings?: Settings;
+    sections?: Data;
+    [k: string]: unknown;
 }[];
 
 export interface InputData {
-  title?: Title;
-  subTitle?: Subtitle;
-  columnLayout?: VerticalLayout;
-  dataseries?: Doughnuts;
-  [k: string]: unknown;
+    title?: Title;
+    subTitle?: Subtitle;
+    columnLayout?: VerticalLayout;
+    dataseries?: Doughnuts;
+    [k: string]: unknown;
 }
 export interface Settings {
-  cutout?: DoghnutHoleSize;
-  averageLatest?: AverageLatestValues;
-  [k: string]: unknown;
+    cutout?: DoghnutHoleSize;
+    averageLatest?: AverageLatestValues;
+    [k: string]: unknown;
 }
 /**
  * Should be a chosen constant and usually not be assigned dynamically by a table column value.
  */
 export interface SectionColor {
-  [k: string]: unknown;
+    [k: string]: unknown;
 }
