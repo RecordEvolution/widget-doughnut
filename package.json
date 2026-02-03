@@ -4,6 +4,10 @@
     "license": "MIT",
     "author": "widget-doughnut",
     "version": "1.5.18",
+    "engines": {
+        "node": ">=24.9.0",
+        "npm": ">=10.0.2"
+    },
     "type": "module",
     "main": "dist/widget-doughnut.js",
     "types": "dist/src/widget-doughnut.d.ts",

@@ -9,6 +9,9 @@ export default defineConfig({
         open: '/demo/',
         port: 8000
     },
+    resolve: {
+        conditions: ['browser']
+    },
     define: {
         'process.env.NODE_ENV': JSON.stringify('production')
     },

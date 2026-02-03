@@ -5,29 +5,44 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+/**
+ * The main heading displayed above the doughnut chart. Use to describe what data is being visualized.
+ */
 export type Title = string;
+/**
+ * Secondary text displayed below the title. Use for additional context like time period, data source, or units.
+ */
 export type Subtitle = string;
+/**
+ * When enabled, multiple doughnut charts are arranged vertically (stacked). When disabled, they are arranged horizontally (side by side).
+ */
 export type VerticalLayout = boolean;
+/**
+ * The name identifier for this doughnut chart. Displayed in legends and tooltips.
+ */
 export type Label = string;
 /**
- * How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart.
+ * How big in percent should the hole in the middle of the doughnut be? Set to 0% for Pie Chart. Common values: 50% for standard doughnut, 70% for thin ring.
  */
 export type DoghnutHoleSize = string;
 /**
- * Calculate the average over the given number of newest rows. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification.
+ * Calculate the average over the given number of newest rows. (If pivoted, then per each of the pivot dataseries.) If not specified then the latest value is shown without modification. Useful for smoothing volatile data.
  */
 export type AverageLatestValues = number;
 /**
- * Should be a chosen constant and usually not be assigned dynamically by a table column value.
+ * Display name for this doughnut section shown in tooltips and legends. Should be a chosen constant and usually not be assigned dynamically by a table column value.
  */
 export type SectionLabel = string;
+/**
+ * The numeric value determining the size of this section relative to other sections. Can be bound to a data column for dynamic updates.
+ */
 export type Value = number;
 /**
  * You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as split column, then you will get a doughnut for each city.
  */
 export type SplitDataBy = string;
 /**
- * One Doghnut ring will be drawn for the latest row in the chosen table.
+ * One doughnut ring will be drawn for the latest row in the chosen table. Each item in this array defines a section/slice.
  */
 export type SectionsOfTheDoughnut = {
     name?: SectionLabel;
@@ -37,9 +52,12 @@ export type SectionsOfTheDoughnut = {
     [k: string]: unknown;
 }[];
 /**
- * The Table with columns to display as sections in a Doughnut.
+ * The table with columns to display as sections in the doughnut. Each section represents a slice of the chart.
  */
 export type Data = SectionsOfTheDoughnut[];
+/**
+ * Array of doughnut chart configurations. Each entry creates a separate doughnut ring that can display different data or perspectives of the same dataset.
+ */
 export type Doughnuts = {
     label?: Label;
     settings?: Settings;
@@ -47,6 +65,9 @@ export type Doughnuts = {
     [k: string]: unknown;
 }[];
 
+/**
+ * A doughnut/pie chart widget for visualizing proportional data as circular segments. Use this widget to display part-to-whole relationships, such as market share percentages, budget allocations, or category distributions. Supports multiple doughnut rings, pivot-based auto-generation of series from data columns, and configurable hole size (set to 0% for pie chart). Best for datasets with 2-8 categories where comparing relative proportions is important.
+ */
 export interface InputData {
     title?: Title;
     subTitle?: Subtitle;
@@ -54,13 +75,16 @@ export interface InputData {
     dataseries?: Doughnuts;
     [k: string]: unknown;
 }
+/**
+ * Configuration options for the doughnut appearance and data processing.
+ */
 export interface Settings {
     cutout?: DoghnutHoleSize;
     averageLatest?: AverageLatestValues;
     [k: string]: unknown;
 }
 /**
- * Should be a chosen constant and usually not be assigned dynamically by a table column value.
+ * The fill color for this doughnut section. Should be a chosen constant and usually not be assigned dynamically by a table column value. Use distinct colors for each section to improve readability.
  */
 export interface SectionColor {
     [k: string]: unknown;
