@@ -4,7 +4,13 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 import type { EChartsOption, PieSeriesOption } from 'echarts'
 import { InputData } from './definition-schema.js'
 import * as echarts from 'echarts/core'
-import { TooltipComponent, LegendComponent, GridComponent, TitleComponent } from 'echarts/components'
+import {
+    ParallelComponent,
+    TooltipComponent,
+    LegendComponent,
+    GridComponent,
+    TitleComponent
+} from 'echarts/components'
 import { PieChart } from 'echarts/charts'
 import { LabelLayout } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -360,6 +366,30 @@ export class WidgetDoughnut extends LitElement {
             for (const ds of chartM.dataSets) {
                 // const option = this.canvasList[ds.label].getOption()
                 const option: any = chartM.echart?.getOption() ?? window.structuredClone(this.template)
+
+                // Strip component keys we don't register. ECharts' getOption() can return
+                // theme-merged defaults for these, and feeding them back into setOption
+                // triggers "Component X is used but not imported" warnings.
+                for (const key of [
+                    'parallel',
+                    'geo',
+                    'timeline',
+                    'markPoint',
+                    'markLine',
+                    'markArea',
+                    'visualMap',
+                    'dataZoom',
+                    'toolbox',
+                    'brush',
+                    'calendar',
+                    'singleAxis',
+                    'polar',
+                    'radar',
+                    'axisPointer'
+                ]) {
+                    delete option[key]
+                }
+
                 const series = option.series[0],
                     series2 = option.series[1]
 
