@@ -1,6 +1,21 @@
 {
-    "title": "InputData",
+    "title": "Doughnut-chart Configuration",
     "description": "A doughnut/pie chart widget for visualizing proportional data as circular segments. Use this widget to display part-to-whole relationships, such as market share percentages, budget allocations, or category distributions. Supports multiple doughnut rings, pivot-based auto-generation of series from data columns, and configurable hole size (set to 0% for pie chart). Best for datasets with 2-8 categories where comparing relative proportions is important.",
+    "aiSelection": {
+        "dataShape": "A list of named parts with one numeric size each: dataseries[].sections[] gives a label and a value per slice. The parts are drawn as shares of their common total, so the numbers must be summable quantities (counts, amounts, durations) rather than rates or averages. An optional column bound to sections[].pivot splits the data into several rings, one per distinct value. Reads best with 2-8 slices.",
+        "useWhen": [
+            "The question is what share each category has of a whole — split of production by program, share of downtime by cause, market share, budget allocation.",
+            "The numbers are parts of one total and the proportions matter more than the absolute values.",
+            "A pie chart is asked for rather than a doughnut: same widget, set dataseries[].settings.cutout to '0%'.",
+            "One ring per machine, site or period should be generated from a single column (bind it to sections[].pivot)."
+        ],
+        "notFor": [
+            "Comparing magnitudes across categories that are not shares of a total, or where there are more than about eight of them — use widget-linechart with dataseries[].type: 'bar'. Bars compare lengths, which the eye judges far better than angles.",
+            "Anything changing over time — a doughnut has no time dimension. Use widget-linechart.",
+            "A single value read against a minimum and maximum — use widget-gauge; a doughnut of one slice is always 100%.",
+            "Reading exact numbers rather than proportions — use widget-table, or a bar chart with dataseries[].styling.showValueLabels enabled."
+        ]
+    },
     "type": "object",
     "properties": {
         "title": {

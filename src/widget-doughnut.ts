@@ -2,7 +2,7 @@ import { html, css, LitElement, PropertyValueMap } from 'lit'
 import { customElement, property, query, state } from 'lit/decorators.js'
 // import * as echarts from "echarts";
 import type { EChartsOption, PieSeriesOption } from 'echarts'
-import { InputData } from './definition-schema.js'
+import { DoughnutChartConfiguration } from './definition-schema.js'
 import * as echarts from 'echarts/core'
 import {
     ParallelComponent,
@@ -26,7 +26,7 @@ echarts.use([
 ])
 
 // echarts.use([GaugeChart, CanvasRenderer]);
-type Dataseries = Exclude<InputData['dataseries'], undefined>[number]
+type Dataseries = Exclude<DoughnutChartConfiguration['dataseries'], undefined>[number]
 type ChartCombination = {
     echart?: echarts.ECharts
     dataSets: Dataseries[]
@@ -52,7 +52,7 @@ const DEFAULT_ECHARTS_COLORS = [
 @customElement('widget-doughnut-versionplaceholder')
 export class WidgetDoughnut extends LitElement {
     @property({ type: Object })
-    inputData?: InputData
+    inputData?: DoughnutChartConfiguration
 
     @property({ type: Object })
     theme?: Theme

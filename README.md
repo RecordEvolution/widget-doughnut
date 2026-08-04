@@ -41,7 +41,7 @@ data: {
 ## Interfaces
 
 ```ts
-  interface InputData {
+  interface DoughnutChartConfiguration {
     settings: Settings
     doughnutValue: number
   }

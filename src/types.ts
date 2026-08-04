@@ -20,7 +20,7 @@ export interface Dataseries {
     backgroundColor: string[]
 }
 
-export interface InputData {
+export interface DoughnutChartConfiguration {
     settings: Settings
     dataseries: Dataseries[]
 }

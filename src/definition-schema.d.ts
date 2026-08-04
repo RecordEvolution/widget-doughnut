@@ -68,7 +68,7 @@ export type Doughnuts = {
 /**
  * A doughnut/pie chart widget for visualizing proportional data as circular segments. Use this widget to display part-to-whole relationships, such as market share percentages, budget allocations, or category distributions. Supports multiple doughnut rings, pivot-based auto-generation of series from data columns, and configurable hole size (set to 0% for pie chart). Best for datasets with 2-8 categories where comparing relative proportions is important.
  */
-export interface InputData {
+export interface DoughnutChartConfiguration {
     title?: Title;
     subTitle?: Subtitle;
     columnLayout?: VerticalLayout;
