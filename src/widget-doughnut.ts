@@ -364,31 +364,17 @@ export class WidgetDoughnut extends LitElement {
 
         this.canvasList.forEach((chartM, label) => {
             for (const ds of chartM.dataSets) {
-                // const option = this.canvasList[ds.label].getOption()
-                const option: any = chartM.echart?.getOption() ?? window.structuredClone(this.template)
-
-                // Strip component keys we don't register. ECharts' getOption() can return
-                // theme-merged defaults for these, and feeding them back into setOption
-                // triggers "Component X is used but not imported" warnings.
-                for (const key of [
-                    'parallel',
-                    'geo',
-                    'timeline',
-                    'markPoint',
-                    'markLine',
-                    'markArea',
-                    'visualMap',
-                    'dataZoom',
-                    'toolbox',
-                    'brush',
-                    'calendar',
-                    'singleAxis',
-                    'polar',
-                    'radar',
-                    'axisPointer'
-                ]) {
-                    delete option[key]
-                }
+                // Always build the option from the template — never from getOption().
+                // Reading the rendered option back and handing it to setOption
+                // deep-clones the whole stored option on every frame, and it returns
+                // every component normalized to an array, so any future
+                // `{ ...option.x }` here would spread an array into `{ '0': x }` and
+                // ECharts would merge that back one level deeper each update until
+                // zrender's recursive merge() overflowed the stack. Starting from the
+                // template also drops the need to strip theme-merged defaults for
+                // components we never register — the template only names components
+                // registered in echarts.use above.
+                const option: any = window.structuredClone(this.template)
 
                 const series = option.series[0],
                     series2 = option.series[1]
