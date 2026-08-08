@@ -278,26 +278,34 @@ export class WidgetDoughnut extends LitElement {
         this.inputData.dataseries.forEach((ds) => {
             ds.label = ds.label ?? ''
 
+            // sections must be rows × slices, but malformed stored configs
+            // (e.g. an object-shaped tableRef.format) deliver bare slice
+            // objects in the outer array. Fold those into one extra row so
+            // the data still renders instead of throwing on row.filter below.
+            const sections: any[] = Array.isArray(ds.sections) ? ds.sections : []
+            const rows: any[][] = sections.filter(Array.isArray)
+            const looseSlices = sections.filter((s) => s && typeof s === 'object' && !Array.isArray(s))
+            if (looseSlices.length) rows.push(looseSlices)
+
             // pivot data
-            const distincts = [...new Set(ds.sections?.flat()?.map((d) => d.pivot ?? ''))].sort()
+            const distincts = [...new Set(rows.flat().map((d) => d?.pivot ?? ''))].sort()
             // const derivedBgColors = tinycolor(ds.backgroundColors).monochromatic(distincts.length).map((c: any) => c.toHexString())
             distincts.forEach((piv, i) => {
                 const prefix = piv ?? ''
                 const label = ds.label ?? ''
                 const name = prefix + (!!prefix && !!label ? ' - ' : '') + label
-                const data = ds.sections
-                    ?.map((d) => (distincts.length === 1 ? d : d.filter((d) => d.pivot === piv)))
-                    .filter((d) => d.length)
-                const data2 =
-                    data?.map((d) =>
-                        d.map((s) => {
-                            const color = (s as any)?.color
-                            if (color === '' || color == null) {
-                                return { name: s.name, value: s.value }
-                            }
-                            return { name: s.name, value: s.value, itemStyle: { color } }
-                        })
-                    ) ?? []
+                const data = rows
+                    .map((row) => (distincts.length === 1 ? row : row.filter((s) => s?.pivot === piv)))
+                    .filter((row) => row.length)
+                const data2 = data.map((row) =>
+                    row.map((s) => {
+                        const color = s?.color
+                        if (color === '' || color == null) {
+                            return { name: s?.name, value: s?.value }
+                        }
+                        return { name: s?.name, value: s?.value, itemStyle: { color } }
+                    })
+                )
 
                 const pds: any = {
                     label: name,
@@ -323,6 +331,9 @@ export class WidgetDoughnut extends LitElement {
                 const values = sections?.map((d) => d.length) ?? []
                 const numSections = Math.max(...values)
                 for (let i = 0; i < numSections; i++) {
+                    // rows can be ragged — the cloned latest row may have
+                    // fewer slices than the longest row in the window
+                    if (!newSection[i]) continue
                     // array from i-th sections values
                     const valueCol =
                         sections?.map((row) => row?.[i]?.value).filter((v) => v !== undefined) ?? []
