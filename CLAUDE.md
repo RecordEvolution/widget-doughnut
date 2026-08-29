@@ -49,7 +49,7 @@ This repo publishes `@record-evolution/widget-doughnut`, a single Lit web compon
 
 ### Release flow
 
-Tags pushed to GitHub trigger `.github/workflows/build-publish.yml` which runs `npm install --frozen-lockfile`, `npm run build`, then `npm publish --access public` and creates a GitHub Release. `npm run release` is the canonical local command — note it uses `--tag-version-prefix=''` so tags are bare semver (e.g. `1.5.19`, not `v1.5.19`).
+Tags pushed to GitHub trigger `.github/workflows/build-publish.yml` which runs `npm ci`, `npm run build`, then `npm publish --access public` via npm trusted publishing (OIDC — no `NPM_TOKEN`) and creates a GitHub Release. `npm run release` is the canonical local command — note it uses `--tag-version-prefix=''` so tags are bare semver (e.g. `1.5.19`, not `v1.5.19`).
 
 ## `aiSelection` in `src/definition-schema.json`
 
