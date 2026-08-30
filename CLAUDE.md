@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run watch` — `vite build --watch` only (no dev server).
 - `npm run types` — Regenerate `src/definition-schema.d.ts` from `src/definition-schema.json` using `json2ts`. Run this after editing the JSON schema.
 - `npm run analyze` — Generate Custom Elements Manifest (`cem analyze --litelement`).
-- `npm run release` — Build, regenerate types, bump patch version (no `v` prefix on tag), push commit + tag. CI publishes to npm on tag push.
+- `npm run release` — `npm version patch`: preflight guards (on `main`, clean tree, not behind `origin/main`, generated files current, build passes), then commit, bare-semver tag, `git push --follow-tags`, then waits on the CI run and fails if the npm publish fails. `npm run release:minor` / `release:major` for other bumps.
 - `npm run link` / `npm run unlink` — Symlink this package into a sibling `../RESWARM/frontend` checkout for local integration testing.
 
 No test runner or lint script is wired up despite README mentioning `npm run lint`/`npm run format` — those scripts do not exist in `package.json`. ESLint/Prettier configs are present (`.prettierrc`, eslint deps) but invocation is manual.
@@ -49,7 +49,7 @@ This repo publishes `@record-evolution/widget-doughnut`, a single Lit web compon
 
 ### Release flow
 
-Tags pushed to GitHub trigger `.github/workflows/build-publish.yml` which runs `npm ci`, `npm run build`, then `npm publish --access public` via npm trusted publishing (OIDC — no `NPM_TOKEN`) and creates a GitHub Release. `npm run release` is the canonical local command — note it uses `--tag-version-prefix=''` so tags are bare semver (e.g. `1.5.19`, not `v1.5.19`).
+Tags pushed to GitHub trigger `.github/workflows/build-publish.yml` which runs `npm ci`, `npm run build`, then `npm publish --access public` via npm trusted publishing (OIDC — no `NPM_TOKEN`) and creates a GitHub Release. `npm run release` is the canonical local command. The bare-semver tag (e.g. `1.5.19`, not `v1.5.19`) comes from `tag-version-prefix=""` in `.npmrc`, so every `npm version` invocation gets it, not just the release script.
 
 ## `aiSelection` in `src/definition-schema.json`
 
