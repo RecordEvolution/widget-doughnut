@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 # Runs after the tag is pushed. Publishing happens in CI (OIDC trusted
 # publishing cannot run from a laptop), so without this the release command
-# succeeds whether or not the package ever reaches npm -- which is how 1.7.5
-# and 1.0.19 sat unpublished for four days.
+# reports success whether or not the package ever reaches npm -- which is how
+# widget-linechart 1.7.5 and widget-statehistory 1.0.19 sat unpublished.
 set -eu
 
 command -v gh >/dev/null 2>&1 || {
