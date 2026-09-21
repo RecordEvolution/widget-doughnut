@@ -10,6 +10,13 @@ export default defineConfig({
         port: 8000
     },
     resolve: {
+        // echarts' CJS build reaches for tslib's helpers; without this alias
+        // vite's dep optimizer hands the dev server a default-less interop
+        // object and every demo page dies on `Cannot destructure property
+        // '__extends'`. The other widget repos already carry it.
+        alias: {
+            tslib: 'tslib/tslib.es6.js'
+        },
         conditions: ['browser']
     },
     define: {
