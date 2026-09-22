@@ -23,7 +23,7 @@ This repo publishes `@record-evolution/widget-doughnut`, a single Lit web compon
 ### Entry point and integration
 
 - `src/widget-doughnut.ts` defines the Lit element. The custom element tag is `widget-doughnut-versionplaceholder` — the literal string `versionplaceholder` is replaced at build time by `@rollup/plugin-replace` (see `vite.config.ts`) with `pkg.version`. This versioned tag name lets multiple widget versions coexist on the same page (the host app reads the version from `package.json` and constructs the tag dynamically — see `demo/index.html`).
-- The host platform passes data via two reactive properties: `inputData: DoughnutChartConfiguration` (data + per-series settings) and `theme: { theme_name, theme_object }` (an ECharts theme). Theme can also be supplied via CSS custom properties `--re-text-color` and `--re-tile-background-color`.
+- The host platform passes data via two reactive properties: `inputData: DoughnutChartConfiguration` (data + per-series settings) and `theme: { theme_name, theme_object }` (an ECharts theme). Theme can also be supplied via CSS custom properties `--re-text-color` and `--re-tile-background-color`. These are not snapshotted: `registerTheme()` stores a `var(--re-…, <theme value>)` chain, so a change to the host property repaints the tile live without the widget being told.
 - `echarts` is declared as a `peerDependency` and marked `external` in the Rollup config, so the host app provides the ECharts runtime. Inside the component, ECharts is imported from `echarts/core` with explicit `echarts.use([...])` registration of only the needed components (Tooltip, Legend, PieChart, CanvasRenderer, LabelLayout, Grid, Title) to keep the consumer bundle minimal.
 
 ### Data schema
